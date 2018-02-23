@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="airsim_interface" type="airsim_interface_node" name="airsim_interface" output="screen">
+        <rosparam command="load" file="$(find airsim_interface)/config/params.yaml" />
+    </node>
+</launch>

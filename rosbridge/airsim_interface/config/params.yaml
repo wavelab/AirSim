@@ -1,0 +1,2 @@
+# The path from $HOME to the log directory
+log_directory: /.ros/log/autonomoose/rod_manager

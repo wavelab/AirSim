@@ -1,0 +1,9 @@
+<library path="lib/libairsim_interface_nodelet">
+    <class name="airsim_interface/airsim_interface_nodelet"
+           type="airsim_interface::AirsimInterfaceNodelet"
+           base_class_type="nodelet::Nodelet">
+        <description>
+           ROD Manager nodelet
+        </description>
+    </class>
+</library>
