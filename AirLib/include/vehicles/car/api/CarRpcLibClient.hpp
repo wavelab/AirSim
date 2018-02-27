@@ -14,19 +14,15 @@
 
 namespace msr { namespace airlib {
 
-	class CarRpcLibClient : public RpcLibClientBase {
+class CarRpcLibClient : public RpcLibClientBase {
+public:
+    CarRpcLibClient(const string& ip_address = "localhost", uint16_t port = 42451, uint timeout_ms = 60000);
+    void setCarControls(const CarApiBase::CarControls& controls);
+    void reset();
+    CarApiBase::CarState getCarState();
 
-		public:
-		    CarRpcLibClient(const string& ip_address = "localhost", uint16_t port = 42451, uint timeout_ms = 60000);
-		    void setCarControls(const CarApiBase::CarControls& controls);
-		    void reset();
-		    GeoPoint getGpsLocation();
-		    CarApiBase::CarState getCarState();
+    virtual ~CarRpcLibClient();    //required for pimpl
+};
 
-		    virtual ~CarRpcLibClient();    //required for pimpl
-		};
-
-	}
-
-} //namespace
+}} //namespace
 #endif
