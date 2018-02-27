@@ -285,27 +285,6 @@ public:
         );
     }
 
-    struct HomeGeoPoint {
-        GeoPoint home_point;
-        double lat_rad, lon_rad;
-        double cos_lat, sin_lat;
-
-        HomeGeoPoint()
-        {}
-        HomeGeoPoint(const GeoPoint& home_point_val)
-        {
-            initialize(home_point_val);
-        }
-        void initialize(const GeoPoint& home_point_val)
-        {
-            home_point = home_point_val;
-            lat_rad = Utils::degreesToRadians(home_point.latitude);
-            lon_rad = Utils::degreesToRadians(home_point.longitude);
-            cos_lat = cos(lat_rad);
-            sin_lat = sin(lat_rad);
-        }
-    };
-
     static GeoPoint nedToGeodetic(const Vector3r& v, const HomeGeoPoint& home_geo_point)
     {
         double x_rad = v.x() / EARTH_RADIUS;
@@ -357,6 +336,9 @@ public: //consts
     static constexpr float Gravity = 9.80665f;    //m/s^2
     static constexpr float Radius = EARTH_RADIUS; //m
     static constexpr float SpeedOfLight = 299792458.0f; //m
+    static constexpr float Obliquity = Utils::degreesToRadians(23.4397f); 
+    static constexpr double Perihelion = Utils::degreesToRadians(102.9372); // perihelion of the Earth
+    static constexpr double DistanceFromSun = 149597870700.0; // meters
 
 private:
     /* magnetic field */

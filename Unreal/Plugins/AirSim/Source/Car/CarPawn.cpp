@@ -11,7 +11,6 @@
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/Controller.h"
 #include "AirBlueprintLib.h"
-#include "NedTransform.h"
 #include "common/ClockFactory.hpp"
 #include "PIPCamera.h"
 #include <vector>
@@ -299,10 +298,10 @@ void ACarPawn::setupInputBindings()
     UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveForward", EKeys::Down, -1), this,
         this, &ACarPawn::MoveForward);
 
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Right, 1), this,
+    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Right, 0.1), this,
         this, &ACarPawn::MoveRight);
 
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Left, -1), this,
+    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Left, -0.1), this,
         this, &ACarPawn::MoveRight);
 
     UAirBlueprintLib::BindActionToKey("Handbrake", EKeys::End, this, &ACarPawn::OnHandbrakePressed, true);
@@ -378,7 +377,7 @@ void ACarPawn::updateKinematics(float delta)
     auto last_kinematics = kinematics_;
 
     kinematics_.pose = getVehiclePawnWrapper()->getPose();
-    kinematics_.twist.linear = NedTransform::toNedMeters(this->GetVelocity(), false);
+    kinematics_.twist.linear = wrapper_->getNedTransform().toNedMeters(this->GetVelocity(), false);
     kinematics_.twist.angular = msr::airlib::VectorMath::toAngularVelocity(
         kinematics_.pose.orientation, last_kinematics.pose.orientation, delta);
 
