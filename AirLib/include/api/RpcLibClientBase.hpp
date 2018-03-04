@@ -24,7 +24,6 @@ public:
     vector<ImageCaptureBase::ImageResponse> simGetImages(vector<ImageCaptureBase::ImageRequest> request);
     vector<uint8_t> simGetImage(int camera_id, ImageCaptureBase::ImageType type);
     msr::airlib::GeoPoint getHomeGeoPoint();
-    msr::airlib::GeoPoint getGpsLocation();
 
     void simSetPose(const Pose& pose, bool ignore_collision);
     Pose simGetPose();

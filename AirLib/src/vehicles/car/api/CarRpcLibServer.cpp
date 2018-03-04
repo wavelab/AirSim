@@ -42,7 +42,10 @@ CarRpcLibServer::CarRpcLibServer(CarApiBase* vehicle, string server_address, uin
         bind("setCarControls", [&](const CarRpcLibAdapators::CarControls& controls) -> void {
         getCarApi()->setCarControls(controls.to());
     });
-
+	(static_cast<rpc::server*>(getServer()))->
+		bind("getGpsLocation", [&]() -> CarRpcLibAdapators::GeoPoint {
+		return CarRpcLibAdapators::GeoPoint(getCarApi()->getGpsLocation());
+	});
 }
 
 //required for pimpl

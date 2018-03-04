@@ -39,7 +39,7 @@ public:
     virtual msr::airlib::Pose simGetPose() override;
 
 	virtual msr::airlib::GeoPoint getHomeGeoPoint() override;
-	virtual msr::airlib::GeoPoint getGpsLocation();
+	virtual msr::airlib::GeoPoint getGpsLocation() override;
 
     virtual void enableApiControl(bool is_enabled) override;
     virtual bool isApiControlEnabled() const override;

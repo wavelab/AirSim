@@ -123,11 +123,6 @@ msr::airlib::GeoPoint RpcLibClientBase::getHomeGeoPoint()
     return pimpl_->client.call("getHomeGeoPoint").as<RpcLibAdapatorsBase::GeoPoint>().to();
 }
 
-msr::airlib::GeoPoint RpcLibClientBase::getGpsLocation()
-{
-    return pimpl_->client.call("getGpsLocation").as<RpcLibAdapatorsBase::GeoPoint>().to();
-}
-
 void RpcLibClientBase::reset()
 {
     pimpl_->client.call("reset");
