@@ -67,8 +67,9 @@ public: //interface
     void setKinematics(const msr::airlib::Kinematics::State* kinematics);
     const msr::airlib::Kinematics::State* getTrueKinematics();
 
-    const GeoPoint& getHomePoint() const;
-    const CollisionInfo& getCollisionInfo() const;
+	const GeoPoint& getHomePoint() const;
+	const GeoPoint& getGpsLocation() const;
+	const CollisionInfo& getCollisionInfo() const;
 
     void setLogLine(std::string line);
     std::string getLogLine();

@@ -212,6 +212,11 @@ const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getHomePoint() const
     return home_point_;
 }
 
+const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getGpsLocation() const
+{
+	return home_point_;
+}
+
 const VehiclePawnWrapper::CollisionInfo& VehiclePawnWrapper::getCollisionInfo() const
 {
     return state_.collision_info;

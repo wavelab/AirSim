@@ -13,6 +13,7 @@ namespace msr { namespace airlib {
 class VehicleApiBase {
 public:
     virtual GeoPoint getHomeGeoPoint() = 0;
+    virtual GeoPoint getGpsLocation() = 0;
     virtual void enableApiControl(bool is_enabled) = 0;
     virtual bool isApiControlEnabled() const = 0;
     virtual void reset() = 0;

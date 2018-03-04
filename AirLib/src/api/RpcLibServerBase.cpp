@@ -100,6 +100,11 @@ RpcLibServerBase::RpcLibServerBase(VehicleApiBase* vehicle, string server_addres
         return RpcLibAdapatorsBase::GeoPoint(geo_point);
     });
 
+    pimpl_->server.bind("getGpsLocation", [&]() -> RpcLibAdapatorsBase::GeoPoint {
+        const auto& geo_point = vehicle_->getGpsLocation();
+        return RpcLibAdapatorsBase::GeoPoint(geo_point);
+    });
+
     pimpl_->server.bind("getCameraInfo", [&](int camera_id) -> RpcLibAdapatorsBase::CameraInfo {
         const auto& camera_info = vehicle_->getCameraInfo(camera_id);
         return RpcLibAdapatorsBase::CameraInfo(camera_info);
