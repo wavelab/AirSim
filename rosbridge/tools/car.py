@@ -4,54 +4,54 @@ client = CarClient()
 client.confirmConnection()
 client.enableApiControl(True)
 car_controls = CarControls()
-car_state = client.getCarState()
 
 home_geo_point = client.getHomeGeoPoint()
 
-def refresh():
-    car_state = client.getCarState()
+def sendControls():
     client.setCarControls(car_controls)
+
+def getState():
+    return client.getCarState()
 
 def steer(val): #-1 to 1
     car_controls.steering = val
-    refresh()
+    sendControls()
 
 def brake(val):
     car_controls.brake = val
-    refresh()
+    sendControls()
 
 def gear(val):
     car_controls.is_manual_gear = True;
     car_controls.manual_gear = val
-    refresh()
+    sendControls()
 
 def throttle(val):
     car_controls.throttle = val
-    refresh()
+    sendControls()
 
 def stop():
     brake(1)
     throttle(0)
-    refresh()
+    sendControls()
     brake(0)
-    refresh()
+    sendControls()
 
 def go():
     brake(0)
     throttle(1)
-    refresh()
+    sendControls()
 
 def pos():
-    refresh()
+    car_state = getState()
     return car_state.kinematics_true.position
 
 def rot():
-    refresh()
+    car_state = getState()
     return car_state.kinematics_true.orientation
 
 def imu():
-    #refresh()
-    car_state= client.getCarState()
+    car_state= getState()
     return (car_state.kinematics_true.linear_velocity, car_state.kinematics_true.angular_velocity, car_state.kinematics_true.linear_acceleration, car_state.kinematics_true.linear_velocity)
 
 # ~ ~ ~ ~ ~ 
