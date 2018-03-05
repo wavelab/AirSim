@@ -6,6 +6,8 @@ client.enableApiControl(True)
 car_controls = CarControls()
 car_state = client.getCarState()
 
+home_geo_point = client.getHomeGeoPoint()
+
 def refresh():
     car_state = client.getCarState()
     client.setCarControls(car_controls)
@@ -52,7 +54,32 @@ def imu():
     car_state= client.getCarState()
     return (car_state.kinematics_true.linear_velocity, car_state.kinematics_true.angular_velocity, car_state.kinematics_true.linear_acceleration, car_state.kinematics_true.linear_velocity)
 
+# ~ ~ ~ ~ ~ 
+
+earthRadius = 6378137; 
+originShift = 2 * math.pi * earthRadius / 2;
+
+def metersToLatLon(m):
+    vx = (m[0] / originShift) * 180
+    vy = (m[1] / originShift) * 180
+    vy = 180 / math.pi * (2 * math.atan(math.exp(vy * math.pi / 180)) - math.pi / 2)
+  
+    return (vy, vx, m[2])
+
+def latLonToMeters(lat, lon, alt):
+    posx = lon * originShift / 180
+    posy = math.log(math.tan((90 + lat) * math.pi / 360)) / (math.pi / 180)
+    posy = posy * originShift / 180
+    
+    return (posx, posy, alt)
+
 def gps():
-    refresh()
-    #car_state = client.getCarState()
-    return  client.getGpsLocation()
+    homeInMeters = latLonToMeters(home_geo_point.latitude, home_geo_point.longitude, home_geo_point.altitude)
+    posInMeters = pos()
+    posInMeters = ( posInMeters.x_val, posInMeters.y_val, posInMeters.z_val )
+    x = homeInMeters[0] + posInMeters[0]
+    y = homeInMeters[1] + posInMeters[1]
+    z = homeInMeters[2] + posInMeters[2]
+    return metersToLatLon((x,y,z))
+
+gps_location = gps()
