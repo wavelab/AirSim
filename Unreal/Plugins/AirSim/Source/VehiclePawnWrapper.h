@@ -109,8 +109,9 @@ private: //methods
 private: //vars
     FVector ground_trace_end_;
     FVector ground_margin_;
-    GeoPoint home_point_;
-    APawn* pawn_;
+	GeoPoint home_point_;
+	GeoPoint gps_location_;
+	APawn* pawn_;
     std::vector<APIPCamera*> cameras_;
     std::unique_ptr<UnrealImageCapture> image_capture_;
     const msr::airlib::Kinematics::State* kinematics_;

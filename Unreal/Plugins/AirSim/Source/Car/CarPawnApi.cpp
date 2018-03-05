@@ -143,7 +143,7 @@ msr::airlib::GeoPoint CarPawnApi::getHomeGeoPoint()
 
 msr::airlib::GeoPoint CarPawnApi::getGpsLocation()
 {
-	return pawn_->getHomePoint();
+	return pawn_->getGpsLocation();
 }
 
 void CarPawnApi::enableApiControl(bool is_enabled)

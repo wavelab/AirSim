@@ -139,8 +139,11 @@ void VehiclePawnWrapper::initialize(APawn* pawn, const std::vector<APIPCamera*>&
     //compute our home point
     Vector3r nedWrtOrigin = ned_transform_.toNedMeters(getUUPosition(), false);
     home_point_ = msr::airlib::EarthUtils::nedToGeodetic(nedWrtOrigin, AirSimSettings::singleton().origin_geopoint);
+	
 
-    initial_state_.tracing_enabled = config.enable_trace;
+	gps_location_ = GeoPoint(40.0, 40.0, 122.0);
+    
+	initial_state_.tracing_enabled = config.enable_trace;
     initial_state_.collisions_enabled = config.enable_collisions;
     initial_state_.passthrough_enabled = config.enable_passthrough_on_collisions;
 
@@ -214,7 +217,7 @@ const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getHomePoint() const
 
 const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getGpsLocation() const
 {
-	return home_point_;
+	return gps_location_;
 }
 
 const VehiclePawnWrapper::CollisionInfo& VehiclePawnWrapper::getCollisionInfo() const
