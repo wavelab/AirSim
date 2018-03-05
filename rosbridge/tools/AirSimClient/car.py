@@ -56,8 +56,8 @@ def imu():
 
 # ~ ~ ~ ~ ~ 
 
-earthRadius = 6378137; 
-originShift = 2 * math.pi * earthRadius / 2;
+earthRadius = 6378137
+originShift = 2 * math.pi * earthRadius / 2
 
 def metersToLatLon(m):
     vx = (m[0] / originShift) * 180

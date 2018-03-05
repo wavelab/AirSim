@@ -1,0 +1,6 @@
+{
+  "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/master/docs/settings.md",
+  "SettingdVersion": 1.0,
+  "UsageScenario": "ComputerVision",
+  "SimMode": "Car"
+}

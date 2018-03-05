@@ -1,26 +1,28 @@
 # ROS bridge for AirSim.
 
-1. Catkin is the ROS build system; before you can run the ROS bridge you need to create a symlink where Catkin can see it:
+SETUP
+Catkin is the ROS build system. Before you can run the ROS bridge for the first time, you need to create a symlink where Catkin can see it:
 ```
 ln -s /PATH_TO/airsim_bridge ~/catkin_ws/build
 ```
 
-2. Start the ROS core:
+RUN
+1. Start the ROS core:
 ```
 roscore
 ```
 
-3. Open a second terminal window and start the ROS bridge:
+2. Open a second terminal window and start the ROS bridge:
 ```
 rosrun airsim_bridge bridge.py
 ```
 
-4. If you want to play a rosbag (pre-recorded ROS session), open a third terminal window:
+3. If you want to play a rosbag (pre-recorded ROS session), open a third terminal window:
 ```
 rosbag play ROSBAG_FILENAME
 ```
 
-5. To record a rosbag:
+4. To record a rosbag:
 ```
 rosbag record -a
 ```

@@ -12,13 +12,19 @@ import re
 
 
 class MsgpackMixin:
+    def __repr__(self):
+        from pprint import pformat
+        return "<" + type(self).__name__ + "> " + pformat(vars(self), indent=4, width=1)
+
     def to_msgpack(self, *args, **kwargs):
-        return self.__dict__ #msgpack.dump(self.to_dict(*args, **kwargs))
+        return self.__dict__
 
     @classmethod
     def from_msgpack(cls, encoded):
         obj = cls()
-        obj.__dict__ = {k.decode('utf-8'): v for k, v in encoded.items()}
+        #obj.__dict__ = {k.decode('utf-8'): (from_msgpack(v.__class__, v) if hasattr(v, "__dict__") else v) for k, v in encoded.items()}
+        obj.__dict__ = { k : (v if not isinstance(v, dict) else getattr(getattr(obj, k).__class__, "from_msgpack")(v)) for k, v in encoded.items()}
+        #return cls(**msgpack.unpack(encoded))
         return obj
 
 
@@ -66,7 +72,7 @@ class Pose(MsgpackMixin):
     position = Vector3r()
     orientation = Quaternionr()
 
-    def __init__(self, position_val, orientation_val):
+    def __init__(self, position_val = Vector3r(), orientation_val = Quaternionr()):
         self.position = position_val
         self.orientation = orientation_val
 
@@ -138,16 +144,35 @@ class CarControls(MsgpackMixin):
             manual_gear = -1
             throttle = - abs(throttle_val)
 
+class KinematicsState(MsgpackMixin):
+    position = Vector3r()
+    orientation = Quaternionr()
+    linear_velocity = Vector3r()
+    angular_velocity = Vector3r()
+    linear_acceleration = Vector3r()
+    angular_acceleration = Vector3r()
+
 class CarState(MsgpackMixin):
     speed = np.float32(0)
     gear = 0
-    position = Vector3r()
-    velocity = Vector3r()
-    orientation = Quaternionr()
+    collision = CollisionInfo()
+    kinematics_true = KinematicsState()
+    position = kinematics_true.position
+    orientation = kinematics_true.orientation
+    velocity = kinematics_true.linear_velocity
+    gps_location = GeoPoint()
+    timestamp = np.uint64(0)
+
+class MultirotorState(MsgpackMixin):
+    collision = CollisionInfo()
+    kinematics_estimated = KinematicsState()
+    kinematics_true = KinematicsState()
+    gps_location = GeoPoint()
+    timestamp = np.uint64(0)
 
 class AirSimClientBase:
     def __init__(self, ip, port):
-        self.client = msgpackrpc.Client(msgpackrpc.Address(ip, port), timeout = 3600)
+        self.client = msgpackrpc.Client(msgpackrpc.Address(ip, port), timeout = 3600, pack_encoding = 'utf-8', unpack_encoding = 'utf-8')
         
     def ping(self):
         return self.client.call('ping')
@@ -178,7 +203,13 @@ class AirSimClientBase:
         return self.client.call('simSetSegmentationObjectID', mesh_name, object_id, is_name_regex)
     def simGetSegmentationObjectID(self, mesh_name):
         return self.client.call('simGetSegmentationObjectID', mesh_name)
-            
+    def simPrintLogMessage(self, message, message_param = "", severity = 0):
+        return self.client.call('simPrintLogMessage', message, message_param, severity)
+    def simGetObjectPose(self, object_name):
+        pose = self.client.call('simGetObjectPose', object_name)
+        return Pose.from_msgpack(pose)
+
+
     # camera control
     # simGetImage returns compressed png in array of bytes
     # image_type uses one of the AirSimImageType members
@@ -238,7 +269,8 @@ class AirSimClientBase:
         self.client.call('simSetPose', pose, ignore_collison)
 
     def simGetPose(self):
-        return self.client.call('simGetPose')
+        pose = self.client.call('simGetPose')
+        return Pose.from_msgpack(pose)
 
     # helper method for converting getOrientation to roll/pitch/yaw
     # https:#en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -445,6 +477,8 @@ class MultirotorClient(AirSimClientBase, object):
 
         
     # query vehicle state
+    def getMultirotorState(self) -> MultirotorState:
+        return MultirotorState.from_msgpack(self.client.call('getMultirotorState'))
     def getPosition(self):
         return Vector3r.from_msgpack(self.client.call('getPosition'))
     def getVelocity(self):
@@ -490,6 +524,19 @@ class MultirotorClient(AirSimClientBase, object):
         return self.client.call('moveToPosition', x, y, z, velocity, max_wait_seconds, drivetrain, yaw_mode, lookahead, adaptive_lookahead)
 
     def moveByManual(self, vx_max, vy_max, z_min, duration, drivetrain = DrivetrainType.MaxDegreeOfFreedom, yaw_mode = YawMode()):
+        """Read current RC state and use it to control the vehicles. 
+
+        Parameters sets up the constraints on velocity and minimum altitude while flying. If RC state is detected to violate these constraints
+        then that RC state would be ignored.
+
+        :param vx_max: max velocity allowed in x direction
+        :param vy_max: max velocity allowed in y direction
+        :param vz_max: max velocity allowed in z direction
+        :param z_min: min z allowed allowed for vehicle position
+        :param duration: after this duration vehicle would switch back to non-manual mode
+        :param drivetrain: when ForwardOnly, vehicle rotates itself so that its front is always facing the direction of travel. If MaxDegreeOfFreedom then it doesn't do that (crab-like movement)
+        :param yaw_mode: Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+        """
         return self.client.call('moveByManual', vx_max, vy_max, z_min, duration, drivetrain, yaw_mode)
 
     def rotateToYaw(self, yaw, max_wait_seconds = 60, margin = 5):
@@ -511,3 +558,6 @@ class CarClient(AirSimClientBase, object):
     def getCarState(self):
         state_raw = self.client.call('getCarState')
         return CarState.from_msgpack(state_raw)
+
+    def getGpsLocation(self):
+        return GeoPoint.from_msgpack(self.client.call('getGpsLocation'))

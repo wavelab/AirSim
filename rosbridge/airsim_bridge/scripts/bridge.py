@@ -57,6 +57,38 @@ car_controls = CarControls()
 lastThrottle = 0
 throttleChangeMargin = 0.01
 
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+home_geo_point = client.getHomeGeoPoint()
+earthRadius = 6378137
+originShift = 2 * math.pi * earthRadius / 2
+
+def metersToLatLon(m):
+    vx = (m[0] / originShift) * 180
+    vy = (m[1] / originShift) * 180
+    vy = 180 / math.pi * (2 * math.atan(math.exp(vy * math.pi / 180)) - math.pi / 2)
+  
+    return (vy, vx, m[2])
+
+def latLonToMeters(lat, lon, alt):
+    posx = lon * originShift / 180
+    posy = math.log(math.tan((90 + lat) * math.pi / 360)) / (math.pi / 180)
+    posy = posy * originShift / 180
+    
+    return (posx, posy, alt)
+
+def gps():
+    car_state = client.getCarState()
+    homeInMeters = latLonToMeters(home_geo_point.latitude, home_geo_point.longitude, home_geo_point.altitude)
+    posInMeters = car_state.kinematics_true.position
+    posInMeters = ( posInMeters.x_val, posInMeters.y_val, posInMeters.z_val )
+    x = homeInMeters[0] + posInMeters[0]
+    y = homeInMeters[1] + posInMeters[1]
+    z = homeInMeters[2] + posInMeters[2]
+    return metersToLatLon((x,y,z))
+
+gps_location = gps() 
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
 # Dataspeed msg definitions:
 # http://docs.ros.org/indigo/api/dbw_mkz_msgs/html/index-msg.html
 
@@ -98,18 +130,32 @@ def bridge():
     rospy.init_node('airsim_bridge', anonymous=True)
 
     rate = rospy.Rate(50) # 50hz
+
     while not rospy.is_shutdown():
         # Get a sensor report
-        car_state = client.getCarState()
+        car_state = client.getCarState() 
         
         # update the controls
         client.setCarControls(car_controls)
 
         # Gear report 
-        print("Gear %d" % (car_state.gear))
-        # GearReport gear_report_msg 
-        # gear_report_msg.state.gear = 
+        #print("Gear %d" % (car_state.gear))
+        #GearReport gear_report_msg 
+        #gear_report_msg.state.gear =
+
+        # http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
+        imu_msg = []
+        imu_pub.publish(imu_msg)
+
+        gps_msg = ""
+        gps_pub.publish(gps_msg)
+
+        steering_report_msg = ""
+        steering_report_pub.publish(steering_report_msg)
         
+        gear_report_msg = ""
+        gear_report_pub.publish(gear_report_msg)
+
         rate.sleep()
 
 if __name__ == '__main__':
@@ -117,3 +163,4 @@ if __name__ == '__main__':
         bridge()
     except rospy.ROSInterruptException:
         pass
+
