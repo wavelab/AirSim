@@ -48,6 +48,19 @@ public: //types
         }
     };
 
+    struct PawnPath {
+        std::string pawn_bp;
+        std::string slippery_mat;
+        std::string non_slippery_mat;
+
+        PawnPath(const std::string& pawn_bp_val = "",
+            const std::string& slippery_mat_val = "/AirSim/VehicleAdv/PhysicsMaterials/Slippery.Slippery",
+            const std::string& non_slippery_mat_val = "/AirSim/VehicleAdv/PhysicsMaterials/NonSlippery.NonSlippery") 
+            : pawn_bp(pawn_bp_val), slippery_mat(slippery_mat_val), non_slippery_mat(non_slippery_mat_val)
+        {
+        }
+    };
+
     struct VehicleSettings {
         std::string vehicle_name, firmware_name;
         int server_port;
@@ -61,6 +74,24 @@ public: //types
         {
             Settings::singleton().getChild(vehicle_name, settings);
         }
+    };
+
+    struct AdditionalCameraSetting {
+        // Additional camera positions
+        float x = 0.5f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float yaw = 0.0f;
+        float pitch = 0.0f;
+        float roll = 0.0f;
+    };
+
+    struct GimbleSetting {
+        float stabilization = 0;
+        //bool is_world_frame = false;
+        float pitch = Utils::nan<float>();
+        float roll = Utils::nan<float>();
+        float yaw = Utils::nan<float>();
     };
 
     struct CaptureSetting {
@@ -89,6 +120,7 @@ public: //types
         int projection_mode = 0; // ECameraProjectionMode::Perspective
         float ortho_width = Utils::nan<float>();
 
+        GimbleSetting gimble;
     };
 
     struct NoiseSetting {
@@ -146,6 +178,7 @@ public: //fields
 
     std::vector<SubwindowSetting> subwindow_settings;
 
+    std::vector<AdditionalCameraSetting> additional_camera_settings;
     std::map<int, CaptureSetting> capture_settings;
     std::map<int, NoiseSetting>  noise_settings;
 
@@ -168,6 +201,7 @@ public: //fields
     bool engine_sound;
     bool log_messages_visible;
     HomeGeoPoint origin_geopoint;
+    std::map<std::string, PawnPath> pawn_paths;
 
 public: //methods
     static AirSimSettings& singleton() 
@@ -194,9 +228,11 @@ public: //methods
         loadSubWindowsSettings(settings);
         loadViewModeSettings(settings);
         loadRecordingSettings(settings);
+        loadAdditionalCameraSettings(settings);
         loadCaptureSettings(settings);
         loadCameraNoiseSettings(settings);
         loadSegmentationSettings(settings);
+        loadPawnPaths(settings);
         loadOtherSettings(settings);
 
         return static_cast<unsigned int>(warning_messages.size());
@@ -340,6 +376,8 @@ private:
             initial_view_mode = 6; // ECameraDirectorMode::CAMREA_DIRECTOR_MODE_BACKUP;
         else if (view_mode_string == "NoDisplay")
             initial_view_mode = 7; // ECameraDirectorMode::CAMREA_DIRECTOR_MODE_NODISPLAY;
+        else if (view_mode_string == "Front")
+            initial_view_mode = 8; // ECameraDirectorMode::CAMREA_DIRECTOR_MODE_FRONT;
         else
             warning_messages.push_back("ViewMode setting is not recognized: " + view_mode_string);
     }
@@ -397,14 +435,49 @@ private:
                 if (json_parent.getChild(child_index, json_settings_child)) {
                     CaptureSetting capture_setting;
                     createCaptureSettings(json_settings_child, capture_setting);
-                    if (capture_setting.image_type >= -1 && capture_setting.image_type < static_cast<int>(capture_settings.size()))
-                        capture_settings[capture_setting.image_type] = capture_setting;
-                    else
-                        //TODO: below exception doesn't actually get raised right now because of issue in Unreal Engine?
-                        throw std::invalid_argument(std::string("ImageType must be >= -1 and < ") + std::to_string(capture_settings.size()));
+                    capture_settings[capture_setting.image_type] = capture_setting;
                 }
             }
         }
+    }
+
+    void loadPawnPaths(const Settings& settings)
+    {
+        pawn_paths.clear();
+        pawn_paths.emplace("BareboneCar",
+            PawnPath("Class'/AirSim/VehicleAdv/Vehicle/VehicleAdvPawn.VehicleAdvPawn_C'"));
+        pawn_paths.emplace("DefaultCar",
+            PawnPath("Class'/AirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C'"));
+        pawn_paths.emplace("DefaultQuadrotor",
+            PawnPath("Class'/AirSim/Blueprints/BP_FlyingPawn.BP_FlyingPawn_C'"));
+        
+
+        msr::airlib::Settings pawn_paths_child;
+        if (settings.getChild("PawnPaths", pawn_paths_child)) {
+            std::vector<std::string> keys;
+            pawn_paths_child.getChildNames(keys);
+
+            for (const auto& key : keys) {
+                msr::airlib::Settings child;
+                pawn_paths_child.getChild(key, child);
+                pawn_paths[key] = createPathPawn(child);
+            }
+        }
+    }
+
+    PawnPath createPathPawn(const Settings& settings)
+    {
+        auto paths = PawnPath();
+        paths.pawn_bp = settings.getString("PawnBP", "");
+        auto slippery_mat = settings.getString("SlipperyMat", "");
+        auto non_slippery_mat = settings.getString("NonSlipperyMat", "");
+
+        if (slippery_mat != "")
+            paths.slippery_mat = slippery_mat;
+        if (non_slippery_mat != "")
+            paths.non_slippery_mat = non_slippery_mat;
+
+        return paths;
     }
 
     void loadSegmentationSettings(const Settings& settings)
@@ -441,11 +514,7 @@ private:
                 if (json_parent.getChild(child_index, json_settings_child)) {
                     NoiseSetting noise_setting;
                     createNoiseSettings(json_settings_child, noise_setting);
-                    if (noise_setting.ImageType >= -1 && noise_setting.ImageType < static_cast<int>(noise_settings.size()))
-                        noise_settings[noise_setting.ImageType] = noise_setting;
-                    else
-                        //TODO: below exception doesn't actually get raised right now because of issue in Unreal Engine?
-                        throw std::invalid_argument("ImageType must be >= -1 and < " + std::to_string(noise_settings.size()));
+                    noise_settings[noise_setting.ImageType] = noise_setting;
                 }
             }
         }
@@ -471,6 +540,26 @@ private:
         noise_setting.HorzDistortionContrib = settings.getFloat("HorzDistortionContrib", noise_setting.HorzDistortionContrib);
     }
 
+    void loadAdditionalCameraSettings(const Settings& settings)
+    {
+        Settings json_parent;
+        if (settings.getChild("AdditionalCameras", json_parent)) {
+            for (size_t child_index = 0; child_index < json_parent.size(); ++child_index) {
+                Settings additional_camera_setting;
+                if (json_parent.getChild(child_index, additional_camera_setting)) {
+                    AdditionalCameraSetting setting;
+                    setting.x = additional_camera_setting.getFloat("X", setting.x);
+                    setting.y = additional_camera_setting.getFloat("Y", setting.y);
+                    setting.z = additional_camera_setting.getFloat("Z", setting.z);
+                    setting.yaw = additional_camera_setting.getFloat("Yaw", setting.yaw);
+                    setting.pitch = additional_camera_setting.getFloat("Pitch", setting.pitch);
+                    setting.roll = additional_camera_setting.getFloat("Roll", setting.roll);
+                    additional_camera_settings.push_back(setting);
+                }
+            }
+        }
+    }
+
     void createCaptureSettings(const msr::airlib::Settings& settings, CaptureSetting& capture_setting)
     {
         capture_setting.width = settings.getInt("Width", capture_setting.width);
@@ -494,6 +583,15 @@ private:
             throw std::invalid_argument(std::string("CaptureSettings projection_mode has invalid value in settings ") + projection_mode);
 
         capture_setting.ortho_width = settings.getFloat("OrthoWidth", capture_setting.ortho_width);
+
+        Settings json_parent;
+        if (settings.getChild("Gimble", json_parent)) {
+            //capture_setting.gimble.is_world_frame = json_parent.getBool("IsWorldFrame", false);
+            capture_setting.gimble.stabilization = json_parent.getFloat("Stabilization", false);
+            capture_setting.gimble.pitch = json_parent.getFloat("Pitch", Utils::nan<float>());
+            capture_setting.gimble.roll = json_parent.getFloat("Roll", Utils::nan<float>());
+            capture_setting.gimble.yaw = json_parent.getFloat("Yaw", Utils::nan<float>());
+        }
     }
 
     void loadSubWindowsSettings(const Settings& settings)
@@ -559,7 +657,7 @@ private:
                 GeoPoint origin = origin_geopoint.home_point;
                 origin.latitude = origin_geopoint_json.getDouble("Latitude", origin.latitude);
                 origin.longitude = origin_geopoint_json.getDouble("Longitude", origin.longitude);
-                origin.altitude = origin_geopoint_json.getFloat("Latitude", origin.altitude);
+                origin.altitude = origin_geopoint_json.getFloat("Altitude", origin.altitude);
                 origin_geopoint.initialize(origin);
             }
         }

@@ -85,6 +85,61 @@ bool RpcLibClientBase::isApiControlEnabled()
     return pimpl_->client.call("isApiControlEnabled").as<bool>();
 }
 
+msr::airlib::GeoPoint RpcLibClientBase::getHomeGeoPoint()
+{
+    return pimpl_->client.call("getHomeGeoPoint").as<RpcLibAdapatorsBase::GeoPoint>().to();
+}
+
+void RpcLibClientBase::reset()
+{
+    pimpl_->client.call("reset");
+}
+
+void RpcLibClientBase::confirmConnection()
+{
+    ClockBase* clock = ClockFactory::get();
+
+    // make sure we can talk to the DroneServer
+    //std::cout << "Contacting DroneServer..." << std::flush;
+    //command_context.client.ping();
+    //std::cout << "DroneServer is responding." << std::endl;
+
+    std::cout << "Waiting for connection - " << std::flush;
+    const TTimeDelta pause_time = 1;
+    while (getConnectionState() != RpcLibClientBase::ConnectionState::Connected)
+    {
+        std::cout << "X" << std::flush;
+        clock->sleep_for(pause_time); 
+    }
+    std::cout << std::endl << "Connected!" << std::endl;
+}
+
+void* RpcLibClientBase::getClient()
+{
+    return &pimpl_->client;
+}
+
+bool RpcLibClientBase::armDisarm(bool arm)
+{
+    return pimpl_->client.call("armDisarm", arm).as<bool>();
+}
+
+CameraInfo RpcLibClientBase::getCameraInfo(int camera_id)
+{
+    return pimpl_->client.call("getCameraInfo", camera_id).as<RpcLibAdapatorsBase::CameraInfo>().to();
+}
+
+void RpcLibClientBase::setCameraOrientation(int camera_id, const Quaternionr& orientation)
+{
+    pimpl_->client.call("setCameraOrientation", camera_id, RpcLibAdapatorsBase::Quaternionr(orientation));
+}
+
+CollisionInfo RpcLibClientBase::getCollisionInfo()
+{
+    return pimpl_->client.call("getCollisionInfo").as<RpcLibAdapatorsBase::CollisionInfo>().to();
+}
+
+
 //sim only
 void RpcLibClientBase::simSetPose(const Pose& pose, bool ignore_collision)
 {
@@ -118,58 +173,19 @@ void RpcLibClientBase::simPrintLogMessage(const std::string& message, std::strin
 }
 
 
-msr::airlib::GeoPoint RpcLibClientBase::getHomeGeoPoint()
+bool RpcLibClientBase::simIsPaused()
 {
-    return pimpl_->client.call("getHomeGeoPoint").as<RpcLibAdapatorsBase::GeoPoint>().to();
+    return pimpl_->client.call("simIsPaused").as<bool>();
 }
 
-msr::airlib::GeoPoint RpcLibClientBase::getGpsLocation()
+void RpcLibClientBase::simPause(bool is_paused)
 {
-	return pimpl_->client.call("getGpsLocation").as<RpcLibAdapatorsBase::GeoPoint>().to();
+    pimpl_->client.call("simPause", is_paused);
 }
 
-void RpcLibClientBase::reset()
+void RpcLibClientBase::simContinueForTime(double seconds)
 {
-    pimpl_->client.call("reset");
-}
-
-void RpcLibClientBase::confirmConnection()
-{
-    ClockBase* clock = ClockFactory::get();
-
-    // make sure we can talk to the DroneServer
-    //std::cout << "Contacting DroneServer..." << std::flush;
-    //command_context.client.ping();
-    //std::cout << "DroneServer is responding." << std::endl;
-
-    std::cout << "Waiting for connection - " << std::flush;
-    const TTimeDelta pause_time = 1;
-    while (getConnectionState() != RpcLibClientBase::ConnectionState::Connected)
-    {
-        std::cout << "X" << std::flush;
-        clock->sleep_for(pause_time); 
-    }
-    std::cout << std::endl << "Connected!" << std::endl;
-}
-
-void* RpcLibClientBase::getClient()
-{
-    return &pimpl_->client;
-}
-
-CameraInfo RpcLibClientBase::getCameraInfo(int camera_id)
-{
-    return pimpl_->client.call("getCameraInfo", camera_id).as<RpcLibAdapatorsBase::CameraInfo>().to();
-}
-
-void RpcLibClientBase::setCameraOrientation(int camera_id, const Quaternionr& orientation)
-{
-    pimpl_->client.call("setCameraOrientation", camera_id, RpcLibAdapatorsBase::Quaternionr(orientation));
-}
-
-CollisionInfo RpcLibClientBase::getCollisionInfo()
-{
-    return pimpl_->client.call("getCollisionInfo").as<RpcLibAdapatorsBase::CollisionInfo>().to();
+    pimpl_->client.call("simContinueForTime", seconds);
 }
 
 msr::airlib::Pose RpcLibClientBase::simGetObjectPose(const std::string& object_name)

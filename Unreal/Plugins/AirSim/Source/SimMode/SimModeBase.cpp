@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SimJoyStick/SimJoyStick.h"
 #include "Misc/OutputDeviceNull.h"
+#include "api/DebugApiServer.hpp"
 #include "common/EarthCelestial.hpp"
 
 
@@ -31,7 +32,11 @@ void ASimModeBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    setupClock();
+    simmode_api_.reset(new SimModeApi(this));
+
+    setupPhysicsLoopPeriod();
+
+    setupClockSpeed();
 
     setStencilIDs();
     
@@ -61,6 +66,11 @@ void ASimModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
+msr::airlib::SimModeApiBase* ASimModeBase::getSimModeApi() const
+{
+    return simmode_api_.get();
+}
+
 void ASimModeBase::setupTimeOfDay()
 {
     sky_sphere_ = nullptr;
@@ -79,25 +89,17 @@ void ASimModeBase::setupTimeOfDay()
 
         if (sky_spheres.Num() >= 1) {
             sky_sphere_ = sky_spheres[0];
-            //for (TFieldIterator<UProperty> PropIt(sky_sphere_->GetClass()); PropIt; ++PropIt)
-            //{
-            //    // We are iterating over all properties of Actor
-            //    UProperty* Property{ *PropIt };
-            //    FString PropertyName{ GetNameSafe(Property) };
-            //    std::string MyStdString(TCHAR_TO_UTF8(*PropertyName));
-            //    Utils::log(MyStdString);
-            //}
             static const FName sun_prop_name(TEXT("Directional light actor"));
             auto* p = sky_sphere_class_->FindPropertyByName(sun_prop_name);
             UObjectProperty* sun_prop = Cast<UObjectProperty>( p);
             UObject* sun_obj = sun_prop->GetObjectPropertyValue_InContainer(sky_sphere_);
             sun_ = Cast<ADirectionalLight>(sun_obj);
-            //if (sun_) {
-            //    sun_->GetRootComponent()->Mobility = EComponentMobility::Movable;
-            //}
+            if (sun_) {
+                sun_->GetRootComponent()->Mobility = EComponentMobility::Movable;
+            }
 
             tod_sim_clock_start_ = ClockFactory::get()->nowNanos();
-            tod_last_update_ = tod_sim_clock_start_;
+            tod_last_update_ = 0;
             if (tod_settings.start_datetime != "")
                 tod_start_time_ = Utils::to_time_t(tod_settings.start_datetime, tod_settings.is_start_datetime_dst);
             else
@@ -107,16 +109,45 @@ void ASimModeBase::setupTimeOfDay()
     //else ignore
 }
 
-
-void ASimModeBase::setupClock()
+msr::airlib::VehicleApiBase* ASimModeBase::getVehicleApi() const
 {
-    float clock_speed = getSettings().clock_speed;
+    auto fpv_vehicle = getFpvVehiclePawnWrapper();
+    if (fpv_vehicle)
+        return fpv_vehicle->getApi();
+    else
+        return nullptr;
+}
 
-    //setup clock in PhysX
-    if (clock_speed != 1.0f) {
-        this->GetWorldSettings()->SetTimeDilation(clock_speed);
-        UAirBlueprintLib::LogMessageString("Clock Speed: ", std::to_string(clock_speed), LogDebugLevel::Informational);
-    }
+bool ASimModeBase::isPaused() const
+{
+    return false;
+}
+
+void ASimModeBase::pause(bool is_paused)
+{
+    //should be overriden by derived class
+    unused(is_paused);
+    throw std::domain_error("Pause is not implemented by SimMode");
+}
+
+void ASimModeBase::continueForTime(double seconds)
+{
+    //should be overriden by derived class
+    unused(seconds);
+    throw std::domain_error("continueForTime is not implemented by SimMode");
+}
+
+std::unique_ptr<msr::airlib::ApiServerBase> ASimModeBase::createApiServer() const
+{
+    //should be overriden by derived class
+    return std::unique_ptr<msr::airlib::ApiServerBase>(new msr::airlib::DebugApiServer());
+}
+
+void ASimModeBase::setupClockSpeed()
+{
+    //default setup - this should be overriden in derived modes as needed
+
+    float clock_speed = getSettings().clock_speed;
 
     //setup clock in ClockFactory
     std::string clock_type = getSettings().clock_type;
@@ -131,7 +162,7 @@ void ASimModeBase::setupClock()
             "clock_type %s is not recognized", clock_type.c_str()));
 }
 
-long long ASimModeBase::getPhysicsLoopPeriod() //nanoseconds
+void ASimModeBase::setupPhysicsLoopPeriod()
 {
     /*
     300Hz seems to be minimum for non-aggresive flights
@@ -144,9 +175,19 @@ long long ASimModeBase::getPhysicsLoopPeriod() //nanoseconds
     */
 
     if (getSettings().usage_scenario == kUsageScenarioComputerVision)
-        return 30000000LL; //30ms
+        physics_loop_period_ = 30000000LL; //30ms
     else
-        return 3000000LL; //3ms
+        physics_loop_period_ = 3000000LL; //3ms
+}
+
+long long ASimModeBase::getPhysicsLoopPeriod() const //nanoseconds
+{
+    return physics_loop_period_;
+}
+
+void ASimModeBase::setPhysicsLoopPeriod(long long  period)
+{
+    physics_loop_period_ = period;
 }
 
 void ASimModeBase::Tick(float DeltaSeconds)
@@ -156,14 +197,27 @@ void ASimModeBase::Tick(float DeltaSeconds)
 
     advanceTimeOfDay();
 
+    showClockStats();
+
     Super::Tick(DeltaSeconds);
+}
+
+void ASimModeBase::showClockStats()
+{
+    float clock_speed = getSettings().clock_speed;
+    if (clock_speed != 1) {
+        UAirBlueprintLib::LogMessageString("ClockSpeed config, actual: ", 
+            Utils::stringf("%f, %f", clock_speed, ClockFactory::get()->getTrueScaleWrtWallClock()), 
+            LogDebugLevel::Informational);
+    }
 }
 
 void ASimModeBase::advanceTimeOfDay()
 {
-    if (sky_sphere_ && sun_) {
+    const auto& settings = getSettings();
+
+    if (settings.tod_settings.enabled && sky_sphere_ && sun_) {
         auto secs = ClockFactory::get()->elapsedSince(tod_last_update_);
-        const auto& settings = getSettings();
         if (secs > settings.tod_settings.update_interval_secs) {
             tod_last_update_ = ClockFactory::get()->nowNanos();
 
@@ -190,7 +244,7 @@ void ASimModeBase::reset()
     //Should be overridden by derived classes
 }
 
-VehiclePawnWrapper* ASimModeBase::getFpvVehiclePawnWrapper()
+VehiclePawnWrapper* ASimModeBase::getFpvVehiclePawnWrapper() const
 {
     //Should be overridden by derived classes
     return nullptr;
@@ -211,17 +265,17 @@ void ASimModeBase::setupInputBindings()
     UAirBlueprintLib::BindActionToKey("InputEventResetAll", EKeys::BackSpace, this, &ASimModeBase::reset);
 }
 
-bool ASimModeBase::isRecording()
+bool ASimModeBase::isRecording() const
 {
     return FRecordingThread::isRecording();
 }
 
-bool ASimModeBase::isRecordUIVisible()
+bool ASimModeBase::isRecordUIVisible() const
 {
     return getSettings().is_record_ui_visible;
 }
 
-ECameraDirectorMode ASimModeBase::getInitialViewMode()
+ECameraDirectorMode ASimModeBase::getInitialViewMode() const
 {
     return Utils::toEnum<ECameraDirectorMode>(getSettings().initial_view_mode);
 }
@@ -253,3 +307,37 @@ void ASimModeBase::stopRecording()
     FRecordingThread::stopRecording();
 }
 
+
+//************************* SimModeApi *****************************/
+
+ASimModeBase::SimModeApi::SimModeApi(ASimModeBase* simmode)
+    : simmode_(simmode)
+{
+}
+
+void ASimModeBase::SimModeApi::reset()
+{
+    simmode_->reset();
+}
+
+msr::airlib::VehicleApiBase* ASimModeBase::SimModeApi::getVehicleApi()
+{
+    return simmode_->getVehicleApi();
+}
+
+bool ASimModeBase::SimModeApi::isPaused() const
+{
+    return simmode_->isPaused();
+}
+
+void ASimModeBase::SimModeApi::pause(bool is_paused)
+{
+    simmode_->pause(is_paused);
+}
+
+void ASimModeBase::SimModeApi::continueForTime(double seconds)
+{
+    simmode_->continueForTime(seconds);
+}
+
+//************************* SimModeApi *****************************/

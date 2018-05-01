@@ -472,7 +472,7 @@ public:
 
     static std::time_t to_time_t(const std::string& str, bool is_dst = false, const std::string& format = "%Y-%m-%d %H:%M:%S")
     {
-        std::tm t = {0};
+        std::tm t;
         t.tm_isdst = is_dst ? 1 : 0;
         std::istringstream ss(str);
         ss >> std::get_time(&t, format.c_str());
@@ -524,15 +524,18 @@ public:
     }
 
     //high precision time in seconds since epoch
-    static double getTimeSinceEpochSecs(std::chrono::high_resolution_clock::time_point* t = nullptr)
+    static double getTimeSinceEpochSecs(std::chrono::system_clock::time_point* t = nullptr)
     {
-        using Clock = std::chrono::high_resolution_clock;
+        using Clock = std::chrono::system_clock; //high res clock has epoch since boot instead of since 1970 for VC++
         return std::chrono::duration<double>((t != nullptr ? *t : Clock::now() ).time_since_epoch()).count();
     }
-    static uint64_t getTimeSinceEpochNanos(std::chrono::high_resolution_clock::time_point* t = nullptr)
+    static uint64_t getTimeSinceEpochNanos(std::chrono::system_clock::time_point* t = nullptr)
     {
-        using Clock = std::chrono::high_resolution_clock;
-        return static_cast<uint64_t>((t != nullptr ? *t : Clock::now() ).time_since_epoch().count());
+        using Clock = std::chrono::system_clock; //high res clock has epoch since boot instead of since 1970 for VC++
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            (t != nullptr ? *t : Clock::now())
+                .time_since_epoch()).
+            count();  
     }
 
     template<typename T>

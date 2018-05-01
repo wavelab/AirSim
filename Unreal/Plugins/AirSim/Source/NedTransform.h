@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "common/Common.hpp"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Actor.h"
+
+#include "common/Common.hpp"
 
 
 class NedTransform
@@ -28,7 +29,7 @@ private:
     Vector3r toVector3r(const FVector& vec, float scale, bool convert_to_ned) const;
 
 private:
-    FVector offset_;
-    float world_to_meters_;
     bool is_initialized_;
+    float world_to_meters_;
+    FVector offset_;
 };

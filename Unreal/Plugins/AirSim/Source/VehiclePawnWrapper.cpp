@@ -62,6 +62,13 @@ void VehiclePawnWrapper::onCollision(class UPrimitiveComponent* MyComp, class AA
         LogDebugLevel::Failure);
 }
 
+void VehiclePawnWrapper::possess()
+{
+    APlayerController* controller = pawn_->GetWorld()->GetFirstPlayerController();
+    controller->UnPossess();
+    controller->Possess(pawn_);
+}
+
 const NedTransform& VehiclePawnWrapper::getNedTransform() const
 {
     return ned_transform_;
@@ -88,6 +95,27 @@ const msr::airlib::Kinematics::State* VehiclePawnWrapper::getTrueKinematics()
 void VehiclePawnWrapper::setKinematics(const msr::airlib::Kinematics::State* kinematics)
 {
     kinematics_ = kinematics;
+}
+
+msr::airlib::VehicleApiBase* VehiclePawnWrapper::getApi() const
+{
+    return api_.get();
+}
+
+void VehiclePawnWrapper::setApi(std::unique_ptr<msr::airlib::VehicleApiBase> api)
+{
+    api_ = std::move(api);
+}
+
+void VehiclePawnWrapper::getRawVehicleSettings(msr::airlib::Settings& settings) const
+{
+    typedef msr::airlib::AirSimSettings AirSimSettings;
+
+    //find out which RC we should use
+    AirSimSettings::VehicleSettings vehicle_settings =
+        AirSimSettings::singleton().getVehicleSettings(this->getVehicleConfigName());
+
+    vehicle_settings.getRawSettings(settings);
 }
 
 std::string VehiclePawnWrapper::getVehicleConfigName() const 
@@ -139,11 +167,8 @@ void VehiclePawnWrapper::initialize(APawn* pawn, const std::vector<APIPCamera*>&
     //compute our home point
     Vector3r nedWrtOrigin = ned_transform_.toNedMeters(getUUPosition(), false);
     home_point_ = msr::airlib::EarthUtils::nedToGeodetic(nedWrtOrigin, AirSimSettings::singleton().origin_geopoint);
-	
 
-	gps_location_ = GeoPoint(40.0, 40.0, 122.0);
-    
-	initial_state_.tracing_enabled = config.enable_trace;
+    initial_state_.tracing_enabled = config.enable_trace;
     initial_state_.collisions_enabled = config.enable_collisions;
     initial_state_.passthrough_enabled = config.enable_passthrough_on_collisions;
 
@@ -192,13 +217,16 @@ int VehiclePawnWrapper::getCameraCount()
 void VehiclePawnWrapper::reset()
 {
     state_ = initial_state_;
+    pawn_->SetActorLocationAndRotation(state_.start_location, state_.start_rotation, false, nullptr, ETeleportType::TeleportPhysics);
+}
+
+//void playBack()
+//{
     //if (pawn_->GetRootPrimitiveComponent()->IsAnySimulatingPhysics()) {
     //    pawn_->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
     //    pawn_->GetRootPrimitiveComponent()->SetSimulatePhysics(true);
     //}
-    pawn_->SetActorLocationAndRotation(state_.start_location, state_.start_rotation, false, nullptr, ETeleportType::TeleportPhysics);
-
-    //TODO: delete below
+    //TODO: refactor below code used for playback
     //std::ifstream sim_log("C:\\temp\\mavlogs\\circle\\sim_cmd_006_orbit 5 1.txt.pos.txt");
     //plot(sim_log, FColor::Purple, Vector3r(0, 0, -3));
     //std::ifstream real_log("C:\\temp\\mavlogs\\circle\\real_cmd_006_orbit 5 1.txt.pos.txt");
@@ -208,16 +236,11 @@ void VehiclePawnWrapper::reset()
     //plot(sim_log, FColor::Purple, Vector3r(0, 0, -3));
     //std::ifstream real_log("C:\\temp\\mavlogs\\square\\real_cmd_012_square 5 1.txt.pos.txt");
     //plot(real_log, FColor::Yellow, Vector3r(0, 0, -3));
-}
+//}
 
 const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getHomePoint() const
 {
     return home_point_;
-}
-
-const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getGpsLocation() const
-{
-	return gps_location_;
 }
 
 const VehiclePawnWrapper::CollisionInfo& VehiclePawnWrapper::getCollisionInfo() const

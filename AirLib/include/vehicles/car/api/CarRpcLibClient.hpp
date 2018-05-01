@@ -20,7 +20,6 @@ public:
     void setCarControls(const CarApiBase::CarControls& controls);
     void reset();
     CarApiBase::CarState getCarState();
-	GeoPoint getGpsLocation();
 
     virtual ~CarRpcLibClient();    //required for pimpl
 };

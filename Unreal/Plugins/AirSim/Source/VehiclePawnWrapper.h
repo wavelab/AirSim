@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Pawn.h"
+
 #include <vector>
 #include <memory>
 #include "UnrealImageCapture.h"
@@ -9,7 +11,8 @@
 #include "PIPCamera.h"
 #include "physics/Kinematics.hpp"
 #include "NedTransform.h"
-#include "GameFramework/Pawn.h"
+#include "api/VehicleApiBase.hpp"
+
 
 class VehiclePawnWrapper
 {
@@ -67,9 +70,8 @@ public: //interface
     void setKinematics(const msr::airlib::Kinematics::State* kinematics);
     const msr::airlib::Kinematics::State* getTrueKinematics();
 
-	const GeoPoint& getHomePoint() const;
-	const GeoPoint& getGpsLocation() const;
-	const CollisionInfo& getCollisionInfo() const;
+    const GeoPoint& getHomePoint() const;
+    const CollisionInfo& getCollisionInfo() const;
 
     void setLogLine(std::string line);
     std::string getLogLine();
@@ -91,6 +93,13 @@ public: //interface
 
     const NedTransform& getNedTransform() const;
 
+    void getRawVehicleSettings(msr::airlib::Settings& settings) const;
+
+    void possess();
+
+    msr::airlib::VehicleApiBase* getApi() const;
+    void setApi(std::unique_ptr<msr::airlib::VehicleApiBase> api);
+
 protected:
     UPROPERTY(VisibleAnywhere)
         UParticleSystem* collision_display_template;
@@ -109,15 +118,15 @@ private: //methods
 private: //vars
     FVector ground_trace_end_;
     FVector ground_margin_;
-	GeoPoint home_point_;
-	GeoPoint gps_location_;
-	APawn* pawn_;
+    GeoPoint home_point_;
+    APawn* pawn_;
     std::vector<APIPCamera*> cameras_;
     std::unique_ptr<UnrealImageCapture> image_capture_;
     const msr::airlib::Kinematics::State* kinematics_;
     std::string log_line_;
     WrapperConfig config_;
     NedTransform ned_transform_;
+    std::unique_ptr<msr::airlib::VehicleApiBase> api_;
 
     struct State {
         FVector start_location;

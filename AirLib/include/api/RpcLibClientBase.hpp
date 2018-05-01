@@ -23,8 +23,7 @@ public:
 
     vector<ImageCaptureBase::ImageResponse> simGetImages(vector<ImageCaptureBase::ImageRequest> request);
     vector<uint8_t> simGetImage(int camera_id, ImageCaptureBase::ImageType type);
-	msr::airlib::GeoPoint getHomeGeoPoint();
-	msr::airlib::GeoPoint getGpsLocation();
+    msr::airlib::GeoPoint getHomeGeoPoint();
 
     void simSetPose(const Pose& pose, bool ignore_collision);
     Pose simGetPose();
@@ -33,6 +32,7 @@ public:
     bool isApiControlEnabled();
     void enableApiControl(bool is_enabled);
     void reset();
+    bool armDisarm(bool arm);
 
     CollisionInfo getCollisionInfo();
 
@@ -43,6 +43,10 @@ public:
     Pose simGetObjectPose(const std::string& object_name);
     CameraInfo getCameraInfo(int camera_id);
     void setCameraOrientation(int camera_id, const Quaternionr& orientation);
+
+    bool simIsPaused();
+    void simPause(bool is_paused);
+    void simContinueForTime(double seconds);
 
     virtual ~RpcLibClientBase();    //required for pimpl
 

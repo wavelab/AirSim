@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Camera/CameraActor.h"
+#include "Materials/Material.h"
+
 #include "common/ImageCaptureBase.hpp"
 #include "common/common_utils/Utils.hpp"
 #include "common/AirSimSettings.hpp"
@@ -27,6 +29,7 @@ public:
 
     virtual void PostInitializeComponents() override;
     virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     void showToScreen();
@@ -58,6 +61,8 @@ private:
 
     std::vector<bool> camera_type_enabled_;
     NedTransform ned_transform_;
+    FRotator gimbled_rotator_;
+    float gimble_stabilization_;
 
 private:
     typedef common_utils::Utils Utils;
