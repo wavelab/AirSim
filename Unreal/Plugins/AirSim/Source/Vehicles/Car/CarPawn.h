@@ -71,7 +71,7 @@ private:
     typedef msr::airlib::AirSimSettings AirSimSettings;
 
     UClass* pip_camera_class_;
-    
+
     PawnEvents pawn_events_;
 
     bool is_low_friction_;
@@ -93,7 +93,7 @@ private:
     UTextRenderComponent* speed_text_render_;
     UTextRenderComponent* gear_text_render_;
     UAudioComponent* engine_sound_audio_;
-    
+
     msr::airlib::CarApiBase::CarControls keyboard_controls_;
 
     FText last_speed_;

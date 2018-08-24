@@ -25,6 +25,10 @@
 	  {
 		  "Name": "PhysXVehicles",
 		  "Enabled": true
-	  }
+	  },
+      {
+          "Name": "MkzVehicle",
+          "Enabled": true
+      }
   ]
 }
