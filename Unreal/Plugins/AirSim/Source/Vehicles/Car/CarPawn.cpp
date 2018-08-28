@@ -4,8 +4,9 @@
 #include "Components/TextRenderComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
-// #include "WheeledVehicleMovementComponent4W.h"
-#include "MkzVehicleMovementComponent.h"
+#include "WheeledVehicleMovementComponent4W.h"
+#include "TESTVehicleMovementComponent.h"
+#include "TESTVehicleMovementComponent.h"
 
 #include "CarWheelFront.h"
 #include "CarWheelRear.h"
@@ -17,7 +18,7 @@
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
-ACarPawn::ACarPawn()
+ACarPawn::ACarPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UTESTVehicleMovementComponent>(VehicleMovementComponentName))
 {
     static ConstructorHelpers::FClassFinder<APIPCamera> pip_camera_class(TEXT("Blueprint'/AirSim/Blueprints/BP_PIPCamera'"));
     pip_camera_class_ = pip_camera_class.Succeeded() ? pip_camera_class.Class : nullptr;
@@ -89,7 +90,7 @@ ACarPawn::ACarPawn()
 void ACarPawn::setupVehicleMovementComponent()
 {
     // UWheeledVehicleMovementComponent4W* movement = CastChecked<UWheeledVehicleMovementComponent4W>(getVehicleMovementComponent());
-    UMkzVehicleMovementComponent* movement = CastChecked<UMkzVehicleMovementComponent>(getVehicleMovementComponent());
+    UTESTVehicleMovementComponent* movement = CastChecked<UTESTVehicleMovementComponent>(getVehicleMovementComponent());
     check(movement->WheelSetups.Num() == 4);
 
     // Wheels/Tires

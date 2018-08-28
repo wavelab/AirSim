@@ -31,7 +31,7 @@ class ACarPawn : public AWheeledVehicle
     GENERATED_BODY()
 
 public:
-    ACarPawn();
+    ACarPawn(const FObjectInitializer& ObjectInitializer);
 
     virtual void BeginPlay() override;
     virtual void Tick(float Delta) override;
