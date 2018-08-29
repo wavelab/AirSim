@@ -18,7 +18,7 @@
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
-ACarPawn::ACarPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UTESTVehicleMovementComponent>(VehicleMovementComponentName))
+ACarPawn::ACarPawn(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UTESTVehicleMovementComponent>(AWheeledVehicle::VehicleMovementComponentName))
 {
     static ConstructorHelpers::FClassFinder<APIPCamera> pip_camera_class(TEXT("Blueprint'/AirSim/Blueprints/BP_PIPCamera'"));
     pip_camera_class_ = pip_camera_class.Succeeded() ? pip_camera_class.Class : nullptr;

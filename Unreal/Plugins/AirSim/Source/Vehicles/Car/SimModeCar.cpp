@@ -58,7 +58,7 @@ void ASimModeCar::setupClockSpeed()
 void ASimModeCar::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    
+
     if (pause_period_start_ > 0) {
         if (ClockFactory::get()->elapsedSince(pause_period_start_) >= pause_period_) {
             if (!isPaused())
@@ -84,10 +84,14 @@ std::unique_ptr<msr::airlib::ApiServerBase> ASimModeCar::createApiServer() const
 void ASimModeCar::getExistingVehiclePawns(TArray<AActor*>& pawns) const
 {
     UAirBlueprintLib::FindAllActor<TVehiclePawn>(this, pawns);
+    UE_LOG(LogTemp, Error, TEXT("NUM of array: %d"), pawns.Num());
 }
 
 bool ASimModeCar::isVehicleTypeSupported(const std::string& vehicle_type) const
 {
+    if (vehicle_type == AirSimSettings::kVehicleTypePhysXCar) {
+        UE_LOG(LogTemp, Error, TEXT("NOT SUPPORTED MAN: %s"), vehicle_type.c_str());
+    }
     return vehicle_type == AirSimSettings::kVehicleTypePhysXCar;
 }
 
@@ -119,7 +123,12 @@ std::unique_ptr<PawnSimApi> ASimModeCar::createVehicleSimApi(
     const PawnSimApi::Params& pawn_sim_api_params) const
 {
     auto vehicle_pawn = static_cast<TVehiclePawn*>(pawn_sim_api_params.pawn);
-    auto vehicle_sim_api = std::unique_ptr<PawnSimApi>(new CarPawnSimApi(pawn_sim_api_params, 
+
+    if (!vehicle_pawn->getVehicleMovementComponent()) {
+        UE_LOG(LogTemp, Error, TEXT("OMG move_comp is BAD"));
+    }
+
+    auto vehicle_sim_api = std::unique_ptr<PawnSimApi>(new CarPawnSimApi(pawn_sim_api_params,
         vehicle_pawn->getKeyBoardControls(), vehicle_pawn->getVehicleMovementComponent()));
     vehicle_sim_api->reset();
     return vehicle_sim_api;

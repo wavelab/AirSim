@@ -7,6 +7,13 @@ CarPawnApi::CarPawnApi(ACarPawn* pawn, const msr::airlib::Kinematics::State* paw
     : pawn_(pawn), pawn_kinematics_(pawn_kinematics), home_geopoint_(home_geopoint)
 {
     movement_ = pawn->GetVehicleMovement();
+    if (!pawn) {
+        UE_LOG(LogTemp, Error, TEXT("OMG PAWN is BAD"));
+    }
+
+    if (!movement_) {
+        UE_LOG(LogTemp, Error, TEXT("OMG MOVEMENT is BAD"));
+    }
 }
 
 bool CarPawnApi::armDisarm(bool arm)
