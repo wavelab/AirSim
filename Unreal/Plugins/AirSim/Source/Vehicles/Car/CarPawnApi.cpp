@@ -7,13 +7,7 @@ CarPawnApi::CarPawnApi(ACarPawn* pawn, const msr::airlib::Kinematics::State* paw
     : pawn_(pawn), pawn_kinematics_(pawn_kinematics), home_geopoint_(home_geopoint)
 {
     movement_ = pawn->GetVehicleMovement();
-    if (!pawn) {
-        UE_LOG(LogTemp, Error, TEXT("OMG PAWN is BAD"));
-    }
 
-    if (!movement_) {
-        UE_LOG(LogTemp, Error, TEXT("OMG MOVEMENT is BAD"));
-    }
 }
 
 bool CarPawnApi::armDisarm(bool arm)
@@ -65,30 +59,35 @@ void CarPawnApi::reset()
     last_controls_ = CarControls();
     auto phys_comps = UAirBlueprintLib::getPhysicsComponents(pawn_);
     UAirBlueprintLib::RunCommandOnGameThread([this, &phys_comps]() {
-        for (auto* phys_comp : phys_comps) {
-            phys_comp->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
-            phys_comp->SetPhysicsLinearVelocity(FVector::ZeroVector);
-            phys_comp->SetSimulatePhysics(false);
-        }
-        movement_->ResetMoveState();
-        movement_->SetActive(false);
-        movement_->SetActive(true, true);
+        // for (auto* phys_comp : phys_comps) {
+        //     phys_comp->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+        //     phys_comp->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        //     phys_comp->SetSimulatePhysics(false);
+        // }
+        //
+        // if (!movement_) {
+        //     UE_LOG(LogTemp, Error, TEXT("OMG MOVEMENT is BAD, CarPawnApi::reset"));
+        // }
+
+        // movement_->ResetMoveState();
+        // movement_->SetActive(false);
+        // movement_->SetActive(true, true);
         setCarControls(CarControls());
 
-	auto pv = movement_->PVehicle;
-	if (pv) {
-	  pv->mWheelsDynData.setToRestState();
-	}
-	auto pvd = movement_->PVehicleDrive;
-	if (pvd) {
-	  pvd->mDriveDynData.setToRestState();
-	}
+	// auto pv = movement_->PVehicle;
+	// if (pv) {
+	//   pv->mWheelsDynData.setToRestState();
+	// }
+	// auto pvd = movement_->PVehicleDrive;
+	// if (pvd) {
+	//   pvd->mDriveDynData.setToRestState();
+	// }
     }, true);
 
-    UAirBlueprintLib::RunCommandOnGameThread([this, &phys_comps]() {
-        for (auto* phys_comp : phys_comps)
-            phys_comp->SetSimulatePhysics(true);
-    }, true);
+    // UAirBlueprintLib::RunCommandOnGameThread([this, &phys_comps]() {
+    //     for (auto* phys_comp : phys_comps)
+    //         phys_comp->SetSimulatePhysics(true);
+    // }, true);
 }
 
 void CarPawnApi::update()

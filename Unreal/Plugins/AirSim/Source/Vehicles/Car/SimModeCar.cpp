@@ -89,9 +89,6 @@ void ASimModeCar::getExistingVehiclePawns(TArray<AActor*>& pawns) const
 
 bool ASimModeCar::isVehicleTypeSupported(const std::string& vehicle_type) const
 {
-    if (vehicle_type == AirSimSettings::kVehicleTypePhysXCar) {
-        UE_LOG(LogTemp, Error, TEXT("NOT SUPPORTED MAN: %s"), vehicle_type.c_str());
-    }
     return vehicle_type == AirSimSettings::kVehicleTypePhysXCar;
 }
 
@@ -118,14 +115,26 @@ void ASimModeCar::initializeVehiclePawn(APawn* pawn)
 {
     auto vehicle_pawn = static_cast<TVehiclePawn*>(pawn);
     vehicle_pawn->initializeForBeginPlay(getSettings().engine_sound);
+
+    if (!vehicle_pawn->getVehicleMovementComponent()) {
+        UE_LOG(LogTemp, Error, TEXT("VEHICLE PAWN MOVE comp is BAD, initializeVehiclePawn"));
+    }
+
+    if (!vehicle_pawn->GetMovementComponent()) {
+        UE_LOG(LogTemp, Error, TEXT("PAWN MOVE comp is BAD, initializeVehiclePawn"));
+    }
 }
 std::unique_ptr<PawnSimApi> ASimModeCar::createVehicleSimApi(
     const PawnSimApi::Params& pawn_sim_api_params) const
 {
     auto vehicle_pawn = static_cast<TVehiclePawn*>(pawn_sim_api_params.pawn);
 
+    if (!vehicle_pawn) {
+        UE_LOG(LogTemp, Error, TEXT("OMG VEHICLE PAWN is BAD, createVehicleSimApi"));
+    }
+
     if (!vehicle_pawn->getVehicleMovementComponent()) {
-        UE_LOG(LogTemp, Error, TEXT("OMG move_comp is BAD"));
+        UE_LOG(LogTemp, Error, TEXT("OMG VEHICLE PAWNMOVE is BAD, createVehicleSimApi"));
     }
 
     auto vehicle_sim_api = std::unique_ptr<PawnSimApi>(new CarPawnSimApi(pawn_sim_api_params,
