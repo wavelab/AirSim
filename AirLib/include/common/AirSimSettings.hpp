@@ -26,7 +26,7 @@ public: //types
     static constexpr char const * kVehicleTypeSimpleFlight = "simpleflight";
     static constexpr char const * kVehicleTypePhysXCar = "physxcar";
     static constexpr char const * kVehicleTypeComputerVision = "computervision";
-
+    static constexpr char const * kVehicleTypeCustomCar = "customcar";
 
 
     struct SubwindowSetting {
@@ -60,7 +60,7 @@ public: //types
 
         PawnPath(const std::string& pawn_bp_val = "",
             const std::string& slippery_mat_val = "/AirSim/VehicleAdv/PhysicsMaterials/Slippery.Slippery",
-            const std::string& non_slippery_mat_val = "/AirSim/VehicleAdv/PhysicsMaterials/NonSlippery.NonSlippery") 
+            const std::string& non_slippery_mat_val = "/AirSim/VehicleAdv/PhysicsMaterials/NonSlippery.NonSlippery")
             : pawn_bp(pawn_bp_val), slippery_mat(slippery_mat_val), non_slippery_mat(non_slippery_mat_val)
         {
         }
@@ -190,7 +190,7 @@ public: //types
         bool enable_trace = false;
         bool enable_collisions = true;
         bool is_fpv_vehicle = false;
-        
+
         //nan means use player start
         Vector3r position = VectorMath::nanVector(); //in global NED
         Rotation rotation = Rotation::nanRotation();
@@ -234,7 +234,7 @@ public: //types
         uint8_t vehicle_sysid = 135;
         int vehicle_compid = 1;
 
-        // if you want to select a specific local network adapter so you can reach certain remote machines (e.g. wifi versus ethernet) 
+        // if you want to select a specific local network adapter so you can reach certain remote machines (e.g. wifi versus ethernet)
         // then you will want to change the LocalHostIp accordingly.  This default only works when log viewer and QGC are also on the
         // same machine.  Whatever network you choose it has to be the same one for external
         std::string local_host_ip = "127.0.0.1";
@@ -286,7 +286,7 @@ public: //fields
 
     std::vector<std::string> warning_messages;
     std::vector<std::string> error_messages;
-    
+
     bool is_record_ui_visible = false;
     int initial_view_mode = 3; //ECameraDirectorMode::CAMERA_DIRECTOR_MODE_FLY_WITH_ME
     bool enable_rpc = true;
@@ -306,7 +306,7 @@ public: //fields
 	  std::string speed_unit_label = "m\\s";
 
 public: //methods
-    static AirSimSettings& singleton() 
+    static AirSimSettings& singleton()
     {
         static AirSimSettings instance;
         return instance;
@@ -380,7 +380,7 @@ private:
         if (upgrade_required) {
             bool auto_upgrade = false;
 
-            //if we have default setting file not modified by user then we will 
+            //if we have default setting file not modified by user then we will
             //just auto-upgrade it
             if (has_default_settings) {
                 auto_upgrade = true;
@@ -500,7 +500,7 @@ private:
     {
         Settings rc_json;
         if (settings_json.getChild("RC", rc_json)) {
-            rc_setting.remote_control_id = rc_json.getInt("RemoteControlID", 
+            rc_setting.remote_control_id = rc_json.getInt("RemoteControlID",
                 simmode_name == "Multirotor" ? 0 : -1);
             rc_setting.allow_api_when_disconnected = rc_json.getBool("AllowAPIWhenDisconnected",
                 rc_setting.allow_api_when_disconnected);
@@ -509,7 +509,7 @@ private:
 
     static std::string getCameraName(const Settings& settings_json)
     {
-        return settings_json.getString("CameraName", 
+        return settings_json.getString("CameraName",
             //TODO: below exist only due to legacy reason and can be replaced by "" in future
             std::to_string(settings_json.getInt("CameraID", 0)));
     }
@@ -560,7 +560,7 @@ private:
         Settings json_parent;
         if (settings_json.getChild("CaptureSettings", json_parent)) {
             for (size_t child_index = 0; child_index < json_parent.size(); ++child_index) {
-                Settings json_settings_child;     
+                Settings json_settings_child;
                 if (json_parent.getChild(child_index, json_settings_child)) {
                     CaptureSetting capture_setting;
                     createCaptureSettings(json_settings_child, capture_setting);
@@ -570,7 +570,7 @@ private:
         }
     }
 
-    static std::unique_ptr<VehicleSetting> createPX4VehicleSetting(const Settings& settings_json) 
+    static std::unique_ptr<VehicleSetting> createPX4VehicleSetting(const Settings& settings_json)
     {
         //these settings_json are expected in same section, not in another child
         std::unique_ptr<VehicleSetting> vehicle_setting_p = std::unique_ptr<VehicleSetting>(new PX4VehicleSetting());
@@ -615,8 +615,8 @@ private:
 
     static Vector3r createVectorSetting(const Settings& settings_json, const Vector3r& default_vec)
     {
-        return Vector3r(settings_json.getFloat("X", default_vec.x()), 
-            settings_json.getFloat("Y", default_vec.y()), 
+        return Vector3r(settings_json.getFloat("X", default_vec.x()),
+            settings_json.getFloat("Y", default_vec.y()),
             settings_json.getFloat("Z", default_vec.z()));
     }
     static Rotation createRotationSetting(const Settings& settings_json, const Rotation& default_rot)
@@ -651,11 +651,11 @@ private:
         //optional settings_json
         vehicle_setting->pawn_path = settings_json.getString("PawnPath", "");
         vehicle_setting->default_vehicle_state = settings_json.getString("DefaultVehicleState", "");
-        vehicle_setting->allow_api_always = settings_json.getBool("AllowAPIAlways", 
+        vehicle_setting->allow_api_always = settings_json.getBool("AllowAPIAlways",
             vehicle_setting->allow_api_always);
         vehicle_setting->auto_create = settings_json.getBool("AutoCreate",
             vehicle_setting->auto_create);
-        vehicle_setting->enable_collision_passthrough = settings_json.getBool("EnableCollisionPassthrogh", 
+        vehicle_setting->enable_collision_passthrough = settings_json.getBool("EnableCollisionPassthrogh",
             vehicle_setting->enable_collision_passthrough);
         vehicle_setting->enable_trace = settings_json.getBool("EnableTrace",
             vehicle_setting->enable_trace);
@@ -673,7 +673,7 @@ private:
         vehicle_setting->rotation = createRotationSetting(settings_json, vehicle_setting->rotation);
 
         loadCameraSettings(settings_json, vehicle_setting->cameras);
-        
+
         return vehicle_setting;
     }
 
@@ -704,6 +704,11 @@ private:
         cv_setting->vehicle_name = "ComputerVision";
         cv_setting->vehicle_type = kVehicleTypeComputerVision;
         vehicles[cv_setting->vehicle_name] = std::move(cv_setting);
+
+        auto cc_setting = std::unique_ptr<VehicleSetting>(new VehicleSetting());
+        cc_setting->vehicle_name = "CustomCar";
+        cc_setting->vehicle_type = kVehicleTypeCustomCar;
+        vehicles[cc_setting->vehicle_name] = std::move(cc_setting);
     }
 
     static void loadVehicleSettings(const std::string& simmode_name, const Settings& settings_json,
@@ -735,11 +740,13 @@ private:
             PawnPath("Class'/AirSim/VehicleAdv/Vehicle/VehicleAdvPawn.VehicleAdvPawn_C'"));
         pawn_paths.emplace("DefaultCar",
             PawnPath("Class'/AirSim/VehicleAdv/SUV/SuvCarPawn.SuvCarPawn_C'"));
+        pawn_paths.emplace("CustomCar",
+            PawnPath("Class'/AirSim/Blueprints/BP_CustomCarPawn.BP_CustomCarPawn_C'"));
         pawn_paths.emplace("DefaultQuadrotor",
             PawnPath("Class'/AirSim/Blueprints/BP_FlyingPawn.BP_FlyingPawn_C'"));
         pawn_paths.emplace("DefaultComputerVision",
             PawnPath("Class'/AirSim/Blueprints/BP_ComputerVisionPawn.BP_ComputerVisionPawn_C'"));
-        
+
     }
 
     static void loadPawnPaths(const Settings& settings_json, std::map<std::string, PawnPath>& pawn_paths)
@@ -814,7 +821,7 @@ private:
         Settings json_parent;
         if (settings_json.getChild("NoiseSettings", json_parent)) {
             for (size_t child_index = 0; child_index < json_parent.size(); ++child_index) {
-                Settings json_settings_child;     
+                Settings json_settings_child;
                 if (json_parent.getChild(child_index, json_settings_child)) {
                     NoiseSetting noise_setting;
                     loadNoiseSetting(json_settings_child, noise_setting);
@@ -897,7 +904,7 @@ private:
         capture_setting.auto_exposure_min_brightness = settings_json.getFloat("AutoExposureMinBrightness", capture_setting.auto_exposure_min_brightness);
         capture_setting.motion_blur_amount = settings_json.getFloat("MotionBlurAmount", capture_setting.motion_blur_amount);
         capture_setting.image_type = settings_json.getInt("ImageType", 0);
-        capture_setting.target_gamma = settings_json.getFloat("TargetGamma", 
+        capture_setting.target_gamma = settings_json.getFloat("TargetGamma",
             capture_setting.image_type == 0 ? CaptureSetting::kSceneTargetGamma : Utils::nan<float>());
 
         std::string projection_mode = Utils::toLower(settings_json.getString("ProjectionMode", ""));
@@ -985,7 +992,7 @@ private:
         }
     }
 
-    static void loadCameraDirectorSetting(const Settings& settings_json, 
+    static void loadCameraDirectorSetting(const Settings& settings_json,
         CameraDirectorSetting& camera_director, const std::string& simmode_name)
     {
         camera_director = CameraDirectorSetting();
@@ -1032,7 +1039,7 @@ private:
                 clock_type = "SteppableClock";
                 for (auto const& vehicle : vehicles)
                 {
-                    if (vehicle.second->auto_create && 
+                    if (vehicle.second->auto_create &&
                         vehicle.second->vehicle_type == kVehicleTypePX4) {
                         clock_type = "ScalableClock";
                         break;

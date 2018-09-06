@@ -1,35 +1,35 @@
-#include "SimModeCar.h"
+#include "SimModeCustomCar.h"
 #include "ConstructorHelpers.h"
 
 #include "AirBlueprintLib.h"
 #include "common/AirSimSettings.hpp"
-#include "CarPawnSimApi.h"
+#include "CustomCarPawnSimApi.h"
 #include "AirBlueprintLib.h"
 #include "common/Common.hpp"
 #include "common/EarthUtils.hpp"
 #include "vehicles/car/api/CarRpcLibServer.hpp"
 
 
-void ASimModeCar::BeginPlay()
+void ASimModeCustomCar::BeginPlay()
 {
     Super::BeginPlay();
 
     initializePauseState();
 }
 
-void ASimModeCar::initializePauseState()
+void ASimModeCustomCar::initializePauseState()
 {
     pause_period_ = 0;
     pause_period_start_ = 0;
     pause(false);
 }
 
-bool ASimModeCar::isPaused() const
+bool ASimModeCustomCar::isPaused() const
 {
     return current_clockspeed_ == 0;
 }
 
-void ASimModeCar::pause(bool is_paused)
+void ASimModeCustomCar::pause(bool is_paused)
 {
     if (is_paused)
         current_clockspeed_ = 0;
@@ -39,14 +39,14 @@ void ASimModeCar::pause(bool is_paused)
     UAirBlueprintLib::setUnrealClockSpeed(this, current_clockspeed_);
 }
 
-void ASimModeCar::continueForTime(double seconds)
+void ASimModeCustomCar::continueForTime(double seconds)
 {
     pause_period_start_ = ClockFactory::get()->nowNanos();
     pause_period_ = seconds;
     pause(false);
 }
 
-void ASimModeCar::setupClockSpeed()
+void ASimModeCustomCar::setupClockSpeed()
 {
     current_clockspeed_ = getSettings().clock_speed;
 
@@ -55,7 +55,7 @@ void ASimModeCar::setupClockSpeed()
     UAirBlueprintLib::LogMessageString("Clock Speed: ", std::to_string(current_clockspeed_), LogDebugLevel::Informational);
 }
 
-void ASimModeCar::Tick(float DeltaSeconds)
+void ASimModeCustomCar::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
@@ -71,7 +71,7 @@ void ASimModeCar::Tick(float DeltaSeconds)
 
 //-------------------------------- overrides -----------------------------------------------//
 
-std::unique_ptr<msr::airlib::ApiServerBase> ASimModeCar::createApiServer() const
+std::unique_ptr<msr::airlib::ApiServerBase> ASimModeCustomCar::createApiServer() const
 {
 #ifdef AIRLIB_NO_RPC
     return ASimModeBase::createApiServer();
@@ -81,52 +81,56 @@ std::unique_ptr<msr::airlib::ApiServerBase> ASimModeCar::createApiServer() const
 #endif
 }
 
-void ASimModeCar::getExistingVehiclePawns(TArray<AActor*>& pawns) const
+void ASimModeCustomCar::getExistingVehiclePawns(TArray<AActor*>& pawns) const
 {
-    UAirBlueprintLib::FindAllActor<TVehiclePawn>(this, pawns);
+    UAirBlueprintLib::FindAllActor<TPawn>(this, pawns);
 }
 
-bool ASimModeCar::isVehicleTypeSupported(const std::string& vehicle_type) const
+bool ASimModeCustomCar::isVehicleTypeSupported(const std::string& vehicle_type) const
 {
-    return vehicle_type == AirSimSettings::kVehicleTypePhysXCar;
+    return vehicle_type == AirSimSettings::kVehicleTypeCustomCar;
 }
 
-std::string ASimModeCar::getVehiclePawnPathName(const AirSimSettings::VehicleSetting& vehicle_setting) const
+std::string ASimModeCustomCar::getVehiclePawnPathName(const AirSimSettings::VehicleSetting& vehicle_setting) const
 {
     //decide which derived BP to use
     std::string pawn_path = vehicle_setting.pawn_path;
+    // TODO: fix this path
     if (pawn_path == "")
-        pawn_path = "DefaultCar";
+        pawn_path = "CustomCar";
+
+
 
     return pawn_path;
 }
 
-PawnEvents* ASimModeCar::getVehiclePawnEvents(APawn* pawn) const
+PawnEvents* ASimModeCustomCar::getVehiclePawnEvents(APawn* pawn) const
 {
-    return static_cast<TVehiclePawn*>(pawn)->getPawnEvents();
+    return static_cast<TPawn*>(pawn)->getPawnEvents();
 }
-const common_utils::UniqueValueMap<std::string, APIPCamera*> ASimModeCar::getVehiclePawnCameras(
+const common_utils::UniqueValueMap<std::string, APIPCamera*> ASimModeCustomCar::getVehiclePawnCameras(
     APawn* pawn) const
 {
-    return (static_cast<const TVehiclePawn*>(pawn))->getCameras();
+    return (static_cast<const TPawn*>(pawn))->getCameras();
 }
-void ASimModeCar::initializeVehiclePawn(APawn* pawn)
+void ASimModeCustomCar::initializeVehiclePawn(APawn* pawn)
 {
-    auto vehicle_pawn = static_cast<TVehiclePawn*>(pawn);
+    UE_LOG(LogTemp, Warning, TEXT("SimModeCustomCar"));
+    auto vehicle_pawn = static_cast<TPawn*>(pawn);
     vehicle_pawn->initializeForBeginPlay(getSettings().engine_sound);
 }
-std::unique_ptr<PawnSimApi> ASimModeCar::createVehicleSimApi(
+std::unique_ptr<PawnSimApi> ASimModeCustomCar::createVehicleSimApi(
     const PawnSimApi::Params& pawn_sim_api_params) const
 {
-    auto vehicle_pawn = static_cast<TVehiclePawn*>(pawn_sim_api_params.pawn);
-    auto vehicle_sim_api = std::unique_ptr<PawnSimApi>(new CarPawnSimApi(pawn_sim_api_params,
-        vehicle_pawn->getKeyBoardControls(), vehicle_pawn->getVehicleMovementComponent()));
+    auto vehicle_pawn = static_cast<TPawn*>(pawn_sim_api_params.pawn);
+    auto vehicle_sim_api = std::unique_ptr<PawnSimApi>(new CustomCarPawnSimApi(pawn_sim_api_params,
+        vehicle_pawn->getKeyBoardControls()));
     vehicle_sim_api->reset();
     return vehicle_sim_api;
 }
-msr::airlib::VehicleApiBase* ASimModeCar::getVehicleApi(const PawnSimApi::Params& pawn_sim_api_params,
+msr::airlib::VehicleApiBase* ASimModeCustomCar::getVehicleApi(const PawnSimApi::Params& pawn_sim_api_params,
     const PawnSimApi* sim_api) const
 {
-    const auto car_sim_api = static_cast<const CarPawnSimApi*>(sim_api);
+    const auto car_sim_api = static_cast<const CustomCarPawnSimApi*>(sim_api);
     return car_sim_api->getVehicleApi();
 }
