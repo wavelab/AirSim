@@ -47,7 +47,7 @@ public:
     {
         return &pawn_events_;
     }
-    // UWheeledVehicleMovementComponent* getVehicleMovementComponent() const;
+
     const msr::airlib::CarApiBase::CarControls& getKeyBoardControls() const
     {
         return keyboard_controls_;

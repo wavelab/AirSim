@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vehicles/car/api/CarApiBase.hpp"
-// #include "WheeledVehicleMovementComponent4W.h"
 #include "physics/Kinematics.hpp"
 #include "CustomCarPawn.h"
 
@@ -30,7 +29,6 @@ public:
     virtual ~CustomCarPawnApi();
 
 private:
-    // UWheeledVehicleMovementComponent* movement_;
     bool api_control_enabled_ = false;
     CarControls last_controls_;
     ACustomCarPawn* pawn_;

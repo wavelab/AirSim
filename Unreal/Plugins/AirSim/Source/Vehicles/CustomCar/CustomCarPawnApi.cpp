@@ -19,29 +19,13 @@ bool CustomCarPawnApi::armDisarm(bool arm)
 void CustomCarPawnApi::setCarControls(const CarApiBase::CarControls& controls)
 {
     last_controls_ = controls;
-    //
-    // if (!controls.is_manual_gear && movement_->GetTargetGear() < 0)
-    //     movement_->SetTargetGear(0, true); //in auto gear we must have gear >= 0
-    // if (controls.is_manual_gear && movement_->GetTargetGear() != controls.manual_gear)
-    //     movement_->SetTargetGear(controls.manual_gear, controls.gear_immediate);
-
-    // movement_->SetThrottleInput(controls.throttle);
-    // movement_->SetSteeringInput(controls.steering);
-    // movement_->SetBrakeInput(controls.brake);
-    // movement_->SetHandbrakeInput(controls.handbrake);
-    // movement_->SetUseAutoGears(!controls.is_manual_gear);
-
     VehicleInput vehicle_input;
-
 
     vehicle_input.throttle_percent = controls.throttle;
     vehicle_input.steering_angle = controls.steering * (-8.2);
-    vehicle_input.brake_position = controls.brake;
+    vehicle_input.brake_position = controls.brake / 2;
 
- /*   vehicle_input.throttle_percent = 0.1;
-    vehicle_input.steering_angle = 1;
-    vehicle_input.brake_position = 0;
-*/
+    UE_LOG(LogTemp, Warning, TEXT("Vehicle Brake: %f"), controls.brake);
 
     pawn_->setVehicleModelInput(vehicle_input);
 }
@@ -53,23 +37,13 @@ const msr::airlib::CarApiBase::CarControls& CustomCarPawnApi::getCarControls() c
 
 msr::airlib::CarApiBase::CarState CustomCarPawnApi::getCarState() const
 {
-    // CarApiBase::CarState state(
-    //     movement_->GetForwardSpeed() / 100, //cm/s -> m/s
-    //     movement_->GetCurrentGear(),
-    //     movement_->GetEngineRotationSpeed(),
-    //     movement_->GetEngineMaxRotationSpeed(),
-    //     last_controls_.handbrake,
-    //     *pawn_kinematics_,
-    //     msr::airlib::ClockFactory::get()->nowNanos()
-    // );
-
     VehicleState vehicle_state = pawn_->getVehicleState();
 
     CarApiBase::CarState state(
-        vehicle_state.velocity.x, //cm/s -> m/s
-        1,
-        5.0f,
-        50.0f,
+        vehicle_state.velocity.x, // m/s
+        1, // Gear
+        5.0f, // EngineRotationSpeed
+        50.0f, // EngineMaxRotationSpeed
         last_controls_.handbrake,
         *pawn_kinematics_,
         msr::airlib::ClockFactory::get()->nowNanos()
@@ -89,19 +63,7 @@ void CustomCarPawnApi::reset()
             phys_comp->SetPhysicsLinearVelocity(FVector::ZeroVector);
             phys_comp->SetSimulatePhysics(false);
         }
-        // movement_->ResetMoveState();
-        // movement_->SetActive(false);
-        // movement_->SetActive(true, true);
         setCarControls(CarControls());
-
-	// auto pv = movement_->PVehicle;
-	// if (pv) {
-	//   pv->mWheelsDynData.setToRestState();
-	// }
-	// auto pvd = movement_->PVehicleDrive;
-	// if (pvd) {
-	//   pvd->mDriveDynData.setToRestState();
-	// }
     }, true);
 
     UAirBlueprintLib::RunCommandOnGameThread([this, &phys_comps]() {

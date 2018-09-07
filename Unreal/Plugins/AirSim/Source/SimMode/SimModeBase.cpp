@@ -440,8 +440,6 @@ void ASimModeBase::setupVehiclesAndCamera()
 
         APawn* fpv_pawn = nullptr;
 
-        UE_LOG(LogTemp, Warning, TEXT("NO of Pawns: %d"), pawns.Num());
-
         //add vehicles from settings
         for (auto const& vehicle_setting_pair : getSettings().vehicles)
         {
@@ -472,24 +470,13 @@ void ASimModeBase::setupVehiclesAndCamera()
 
                 if (vehicle_setting.is_fpv_vehicle)
                     fpv_pawn = spawned_pawn;
-
-                UE_LOG(LogTemp, Warning, TEXT("Load class: %s"), *FString(getSettings().pawn_paths.at(getVehiclePawnPathName(vehicle_setting)).pawn_bp.c_str()));
-                UE_LOG(LogTemp, Warning, TEXT("Spawned type: %s"), *FString(vehicle_setting.vehicle_type.c_str()));
-                UE_LOG(LogTemp, Warning, TEXT("Spawned name: %s"), *FString(vehicle_setting.vehicle_name.c_str()));
-                UE_LOG(LogTemp, Warning, TEXT("Spawned path: %s"), *FString(vehicle_setting.pawn_path.c_str()));
             }
         }
-
-        UE_LOG(LogTemp, Warning, TEXT("SPAWNING"));
-        UE_LOG(LogTemp, Warning, TEXT("NO of Pawns: %d"), pawns.Num());
 
         //create API objects for each pawn we have
         for (AActor* pawn : pawns)
         {
             APawn* vehicle_pawn = static_cast<APawn*>(pawn);
-
-            UE_LOG(LogTemp, Warning, TEXT("SPAWN NOW"));
-
             initializeVehiclePawn(vehicle_pawn);
 
             //create vehicle sim api
@@ -497,8 +484,6 @@ void ASimModeBase::setupVehiclesAndCamera()
             const auto& pawn_ned_pos = ned_transform.toLocalNed(vehicle_pawn->GetActorLocation());
             const auto& home_geopoint= msr::airlib::EarthUtils::nedToGeodetic(pawn_ned_pos, getSettings().origin_geopoint);
             const std::string vehicle_name = std::string(TCHAR_TO_UTF8(*(vehicle_pawn->GetName())));
-
-            UE_LOG(LogTemp, Warning, TEXT("name: %s"), *(vehicle_pawn->GetName()));
 
             PawnSimApi::Params pawn_sim_api_params(vehicle_pawn, &getGlobalNedTransform(),
                 getVehiclePawnEvents(vehicle_pawn), getVehiclePawnCameras(vehicle_pawn), pip_camera_class,
@@ -513,10 +498,7 @@ void ASimModeBase::setupVehiclesAndCamera()
 
             vehicle_sim_apis_.push_back(std::move(vehicle_sim_api));
         }
-        UE_LOG(LogTemp, Warning, TEXT("NO of Pawns: %d"), pawns.Num());
     }
-
-
 
     if (getApiProvider()->hasDefaultVehicle()) {
         //TODO: better handle no FPV vehicles scenario

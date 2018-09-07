@@ -22,8 +22,11 @@ struct ValidRange {
 };
 
 struct VehicleInput {
+    // Throttle is from 0.0 to 1.0
     double throttle_percent;
+    // Brake is from 0.0 to 0.5, this represents the pedal position in the car
     double brake_position;
+    // Steering angle is in radians and represents the steering wheel angle
     double steering_angle;
 };
 
