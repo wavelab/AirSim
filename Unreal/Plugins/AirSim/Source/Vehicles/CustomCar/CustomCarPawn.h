@@ -15,6 +15,7 @@
 #include "common/common_utils/UniqueValueMap.hpp"
 #include "PawnEvents.h"
 #include "PIPCamera.h"
+#include "mkz_vsm.h"
 
 #include "CustomCarPawn.generated.h"
 
@@ -51,6 +52,9 @@ public:
     {
         return keyboard_controls_;
     }
+
+    void setVehicleModelInput(VehicleInput vehicle_input);
+
 
 private:
     void updateHUDStrings();
@@ -89,6 +93,7 @@ private:
     UPROPERTY() APIPCamera* camera_front_right_;
     UPROPERTY() APIPCamera* camera_driver_;
     UPROPERTY() APIPCamera* camera_back_center_;
+    UPROPERTY() UManualPoseController* manual_pose_controller_;
 
     UTextRenderComponent* speed_text_render_;
     UTextRenderComponent* gear_text_render_;
@@ -100,4 +105,5 @@ private:
     FText last_gear_;
     FColor	last_gear_display_color_;
     FColor	last_gear_display_reverse_color_;
+    MkzVsm vehicle_model_;
 };

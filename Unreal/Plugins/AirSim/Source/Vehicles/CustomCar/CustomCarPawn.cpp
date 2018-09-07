@@ -111,6 +111,13 @@ ACustomCarPawn::ACustomCarPawn()
 
 void ACustomCarPawn::setupVehicleMovementComponent()
 {
+
+    FVector init_location = this->GetActorLocation();
+    Vector3 init_position;
+    init_position.x = init_location.X;
+    init_position.y = init_location.Y;
+    init_position.z = init_location.Z;
+    vehicle_model_.init(init_position);
     // UWheeledVehicleMovementComponent4W* movement = CastChecked<UWheeledVehicleMovementComponent4W>(getVehicleMovementComponent());
     // check(movement->WheelSetups.Num() == 4);
     //
@@ -180,6 +187,11 @@ void ACustomCarPawn::setupVehicleMovementComponent()
     // movement->bDeprecatedSpringOffsetMode = true;
 }
 
+void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
+{
+    vehicle_model_.setVehicleInput(vehicle_input);
+}
+
 void ACustomCarPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation,
     FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -229,6 +241,10 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     camera_back_center_->AttachToComponent(camera_back_center_base_, FAttachmentTransformRules::KeepRelativeTransform);
 
     setupInputBindings();
+
+    manual_pose_controller_ = NewObject<UManualPoseController>(this, "ComputerVision_ManualPoseController");
+    manual_pose_controller_->initializeForPlay();
+    manual_pose_controller_->setActor(this);
 }
 
 const common_utils::UniqueValueMap<std::string, APIPCamera*> ACustomCarPawn::getCameras() const
@@ -278,7 +294,32 @@ void ACustomCarPawn::Tick(float Delta)
 
     // Set the string in the in-car HUD
     updateInCarHUD();
+    
+    FVector location = this->GetActorLocation();
+    FRotator rotation = this->GetActorRotation();
 
+    
+    FVector delta_position = FVector::ForwardVector;
+    FRotator delta_rotation = FRotator(0,1,0);
+    this->SetActorLocationAndRotation(location + delta_position, rotation + delta_rotation);
+
+    vehicle_model_.performSimulationStep();
+    VehicleState vehicle_state = vehicle_model_.getVehicleState();
+
+    
+    FVector new_location = FVector(vehicle_state.position.x,
+                                   vehicle_state.position.y,
+                                   location.Z);
+
+    FRotator new_rotation = FRotator(vehicle_state.orientation.y,
+                                    vehicle_state.orientation.z,
+                                    vehicle_state.orientation.x);
+
+    
+    //update ground level
+    if (manual_pose_controller_->getActor() == this) {
+        manual_pose_controller_->updateActorPose(Delta);
+    }
     // Pass the engine RPM to the sound component
     // float RPMToAudioScale = 2500.0f / GetVehicleMovement()->GetEngineMaxRotationSpeed();
     // engine_sound_audio_->SetFloatParameter(FName("RPM"), GetVehicleMovement()->GetEngineRotationSpeed()*RPMToAudioScale);

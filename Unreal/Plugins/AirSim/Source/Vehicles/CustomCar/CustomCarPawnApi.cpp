@@ -30,6 +30,14 @@ void CustomCarPawnApi::setCarControls(const CarApiBase::CarControls& controls)
     // movement_->SetBrakeInput(controls.brake);
     // movement_->SetHandbrakeInput(controls.handbrake);
     // movement_->SetUseAutoGears(!controls.is_manual_gear);
+
+    VehicleInput vehicle_input;
+
+    vehicle_input.throttle_percent = controls.throttle;
+    vehicle_input.steering_angle = controls.steering;
+    vehicle_input.brake_position = controls.brake;
+
+    pawn_->setVehicleModelInput(vehicle_input);
 }
 
 const msr::airlib::CarApiBase::CarControls& CustomCarPawnApi::getCarControls() const
