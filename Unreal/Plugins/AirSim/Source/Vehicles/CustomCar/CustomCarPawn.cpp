@@ -192,6 +192,11 @@ void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
     vehicle_model_.setVehicleInput(vehicle_input);
 }
 
+VehicleState ACustomCarPawn::getVehicleState()
+{
+    return vehicle_state_;
+}
+
 void ACustomCarPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation,
     FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -295,26 +300,34 @@ void ACustomCarPawn::Tick(float Delta)
     // Set the string in the in-car HUD
     updateInCarHUD();
     
-    FVector location = this->GetActorLocation();
-    FRotator rotation = this->GetActorRotation();
+    static FVector location = this->GetActorLocation();
+    static FRotator rotation = this->GetActorRotation();
 
     
     FVector delta_position = FVector::ForwardVector;
     FRotator delta_rotation = FRotator(0,1,0);
-    this->SetActorLocationAndRotation(location + delta_position, rotation + delta_rotation);
+    // this->SetActorLocationAndRotation(location + delta_position, rotation + delta_rotation);
 
     vehicle_model_.performSimulationStep();
-    VehicleState vehicle_state = vehicle_model_.getVehicleState();
+    vehicle_state_ = vehicle_model_.getVehicleState();
 
     
-    FVector new_location = FVector(vehicle_state.position.x,
-                                   vehicle_state.position.y,
+    FVector new_location = FVector(vehicle_state_.position.x,
+                                   vehicle_state_.position.y,
                                    location.Z);
 
-    FRotator new_rotation = FRotator(vehicle_state.orientation.y,
-                                    vehicle_state.orientation.z,
-                                    vehicle_state.orientation.x);
+    FRotator new_rotation = FRotator(vehicle_state_.orientation.y,
+                                    -vehicle_state_.orientation.z,
+                                    vehicle_state_.orientation.x);
 
+    UE_LOG(LogTemp, Warning, TEXT("currLocation: %f,%f,%f"), this->GetActorLocation().X,
+                                                             this->GetActorLocation().Y,
+                                                             this->GetActorLocation().Z);
+    UE_LOG(LogTemp, Warning, TEXT("currRotation: %f,%f,%f"), this->GetActorRotation().Pitch,
+                                                             this->GetActorRotation().Roll,
+                                                             this->GetActorRotation().Yaw);
+
+    this->SetActorLocationAndRotation(location + rotation.RotateVector(new_location), rotation + new_rotation);
     
     //update ground level
     if (manual_pose_controller_->getActor() == this) {

@@ -54,7 +54,7 @@ public:
     }
 
     void setVehicleModelInput(VehicleInput vehicle_input);
-
+    VehicleState getVehicleState();
 
 private:
     void updateHUDStrings();
@@ -106,4 +106,5 @@ private:
     FColor	last_gear_display_color_;
     FColor	last_gear_display_reverse_color_;
     MkzVsm vehicle_model_;
+    VehicleState vehicle_state_;
 };

@@ -102,7 +102,7 @@ VehicleState MkzVsm::getVehicleState() {
     vehicle_state.position = position;
     orientation.x = output_array[3] * RAD2DEG; //convert radian to degree
     orientation.y = output_array[4] * RAD2DEG;
-    orientation.z = -output_array[5] * RAD2DEG;
+    orientation.z = output_array[5] * RAD2DEG;
     vehicle_state.orientation = orientation;
     velocity.x = output_array[12];
     velocity.y = output_array[13];

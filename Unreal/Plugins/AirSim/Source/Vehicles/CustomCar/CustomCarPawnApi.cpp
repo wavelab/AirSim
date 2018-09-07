@@ -33,9 +33,15 @@ void CustomCarPawnApi::setCarControls(const CarApiBase::CarControls& controls)
 
     VehicleInput vehicle_input;
 
+
     vehicle_input.throttle_percent = controls.throttle;
-    vehicle_input.steering_angle = controls.steering;
+    vehicle_input.steering_angle = controls.steering * (-8.2);
     vehicle_input.brake_position = controls.brake;
+
+ /*   vehicle_input.throttle_percent = 0.1;
+    vehicle_input.steering_angle = 1;
+    vehicle_input.brake_position = 0;
+*/
 
     pawn_->setVehicleModelInput(vehicle_input);
 }
@@ -57,8 +63,10 @@ msr::airlib::CarApiBase::CarState CustomCarPawnApi::getCarState() const
     //     msr::airlib::ClockFactory::get()->nowNanos()
     // );
 
+    VehicleState vehicle_state = pawn_->getVehicleState();
+
     CarApiBase::CarState state(
-        10.0f, //cm/s -> m/s
+        vehicle_state.velocity.x, //cm/s -> m/s
         1,
         5.0f,
         50.0f,
