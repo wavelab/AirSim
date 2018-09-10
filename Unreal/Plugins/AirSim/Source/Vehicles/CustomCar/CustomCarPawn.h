@@ -19,6 +19,13 @@
 
 #include "CustomCarPawn.generated.h"
 
+#define RAD2DEG 57.2958
+
+struct VehiclePose {
+    FVector location;
+    FRotator rotation;
+};
+
 class UPhysicalMaterial;
 class UCameraComponent;
 class USpringArmComponent;
@@ -27,6 +34,7 @@ class UInputComponent;
 class UAudioComponent;
 
 UCLASS(config = Game)
+
 class ACustomCarPawn : public APawn
 {
     GENERATED_BODY()
@@ -69,6 +77,7 @@ private:
     void onFootBrake(float Val);
     void onReversePressed();
     void onReverseReleased();
+    VehiclePose updateVehicleModel();
 
 private:
     typedef msr::airlib::AirSimSettings AirSimSettings;

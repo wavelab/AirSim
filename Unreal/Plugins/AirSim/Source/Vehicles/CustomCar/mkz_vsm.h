@@ -3,8 +3,6 @@
 
 #include "cMoose.h"
 
-#define RAD2DEG 57.2958
-
 // These consts need to be taken from the generated code and may change if the
 // model is changed
 const int InputSize =  NINP;

@@ -96,13 +96,13 @@ VehicleState MkzVsm::getVehicleState() {
     WheelState rr_ws;
 
     // Vehicle body
-    position.x = init_unreal_position.x + (output_array[9] * 100); // convert output from m to cm
-    position.y = init_unreal_position.y + (-output_array[10] * 100);
+    position.x = output_array[9]; 
+    position.y = -output_array[10];
     position.z = output_array[11];
     vehicle_state.position = position;
-    orientation.x = output_array[3] * RAD2DEG; //convert radian to degree
-    orientation.y = output_array[4] * RAD2DEG;
-    orientation.z = output_array[5] * RAD2DEG;
+    orientation.x = output_array[3]; 
+    orientation.y = output_array[4];
+    orientation.z = output_array[5];
     vehicle_state.orientation = orientation;
     velocity.x = output_array[12];
     velocity.y = output_array[13];

@@ -78,13 +78,7 @@ ACustomCarPawn::ACustomCarPawn()
 
 void ACustomCarPawn::setupVehicleMovementComponent()
 {
-
-    FVector init_location = this->GetActorLocation();
-    Vector3 init_position;
-    init_position.x = init_location.X;
-    init_position.y = init_location.Y;
-    init_position.z = init_location.Z;
-    vehicle_model_.init(init_position);
+    vehicle_model_.init();
 }
 
 void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
@@ -174,6 +168,30 @@ void ACustomCarPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
     camera_back_center_base_ = nullptr;
 }
 
+VehiclePose ACustomCarPawn::updateVehicleModel()
+{
+    // store the initial location and rotation of the car when the scenario starts
+    static FVector location = this->GetActorLocation();
+    static FRotator rotation = this->GetActorRotation();
+
+    vehicle_model_.performSimulationStep();
+    vehicle_state_ = vehicle_model_.getVehicleState();
+
+    FVector new_location = FVector(vehicle_state_.position.x * 100, // convert output from m to cm
+                                   vehicle_state_.position.y * 100, // convert output from m to cm
+                                   location.Z);
+
+    FRotator new_rotation = FRotator(vehicle_state_.orientation.y * RAD2DEG, //convert radian to degree
+                                    -vehicle_state_.orientation.z * RAD2DEG, //convert radian to degree
+                                     vehicle_state_.orientation.x * RAD2DEG);//convert radian to degree
+
+    VehiclePose newPose;
+    newPose.location = location + rotation.RotateVector(new_location);
+    newPose.rotation = rotation + new_rotation;
+
+    return newPose;
+}
+
 void ACustomCarPawn::Tick(float Delta)
 {
     Super::Tick(Delta);
@@ -183,27 +201,12 @@ void ACustomCarPawn::Tick(float Delta)
 
     // Set the string in the in-car HUD
     updateInCarHUD();
+    
+    // Update the vehicle model state
+    VehiclePose newPose = updateVehicleModel();
 
-    static FVector location = this->GetActorLocation();
-    static FRotator rotation = this->GetActorRotation();
-
-
-    FVector delta_position = FVector::ForwardVector;
-    FRotator delta_rotation = FRotator(0,1,0);
-
-    vehicle_model_.performSimulationStep();
-    vehicle_state_ = vehicle_model_.getVehicleState();
-
-
-    FVector new_location = FVector(vehicle_state_.position.x,
-                                   vehicle_state_.position.y,
-                                   location.Z);
-
-    FRotator new_rotation = FRotator(vehicle_state_.orientation.y,
-                                    -vehicle_state_.orientation.z,
-                                    vehicle_state_.orientation.x);
-
-    this->SetActorLocationAndRotation(location + rotation.RotateVector(new_location), rotation + new_rotation);
+    // Set the location and rotation of the carpawn in simulation
+    this->SetActorLocationAndRotation(newPose.location, newPose.rotation);
 
     //update ground level
     if (manual_pose_controller_->getActor() == this) {
