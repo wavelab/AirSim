@@ -21,18 +21,6 @@ ACustomCarPawn::ACustomCarPawn()
 
     // TODO: Change this to some other pawn later
     const auto& car_mesh_paths = AirSimSettings::singleton().pawn_paths["DefaultComputerVision"];
-    // auto slippery_mat = Cast<UPhysicalMaterial>(
-    //     UAirBlueprintLib::LoadObject(car_mesh_paths.slippery_mat));
-    // auto non_slippery_mat = Cast<UPhysicalMaterial>(
-    //     UAirBlueprintLib::LoadObject(car_mesh_paths.non_slippery_mat));
-    // if (slippery_mat)
-    //     slippery_mat_ = slippery_mat;
-    // else
-    //     UAirBlueprintLib::LogMessageString("Failed to load Slippery physics material", "", LogDebugLevel::Failure);
-    // if (non_slippery_mat)
-    //     non_slippery_mat_ = non_slippery_mat;
-    // else
-    //     UAirBlueprintLib::LogMessageString("Failed to load NonSlippery physics material", "", LogDebugLevel::Failure);
 
     setupVehicleMovementComponent();
 
@@ -55,7 +43,7 @@ ACustomCarPawn::ACustomCarPawn()
     camera_driver_base_->SetupAttachment(RootComponent);
 
     camera_back_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_back_center_base_"));
-    camera_back_center_base_->SetRelativeLocation(FVector(-200, 0, 100)); //rear
+    camera_back_center_base_->SetRelativeLocation(FVector(-400, 0, 200)); //rear
     camera_back_center_base_->SetupAttachment(RootComponent);
 
     // // In car HUD
@@ -118,14 +106,6 @@ void ACustomCarPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* 
 
 void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
 {
-
-    UE_LOG(LogTemp, Warning, TEXT("CustomCar: initializeForBeginPlay"));
-    // if (engine_sound)
-    //     engine_sound_audio_->Activate();
-    // else
-    //     engine_sound_audio_->Deactivate();
-
-
     //put camera little bit above vehicle
     FTransform camera_transform(FVector::ZeroVector);
     FActorSpawnParameters camera_spawn_params;
@@ -198,9 +178,6 @@ void ACustomCarPawn::Tick(float Delta)
 {
     Super::Tick(Delta);
 
-    // update physics material
-    updatePhysicsMaterial();
-
     // Update the strings used in the HUD (in-car and on-screen)
     updateHUDStrings();
 
@@ -232,19 +209,8 @@ void ACustomCarPawn::Tick(float Delta)
     if (manual_pose_controller_->getActor() == this) {
         manual_pose_controller_->updateActorPose(Delta);
     }
-    // Pass the engine RPM to the sound component
-    // float RPMToAudioScale = 2500.0f / GetVehicleMovement()->GetEngineMaxRotationSpeed();
-    // engine_sound_audio_->SetFloatParameter(FName("RPM"), GetVehicleMovement()->GetEngineRotationSpeed()*RPMToAudioScale);
 
     pawn_events_.getPawnTickSignal().emit(Delta);
-}
-
-void ACustomCarPawn::BeginPlay()
-{
-    Super::BeginPlay();
-
-    // Start an engine sound playing
-    // engine_sound_audio_->Play();
 }
 
 void ACustomCarPawn::updateHUDStrings()
@@ -292,25 +258,6 @@ void ACustomCarPawn::updateInCarHUD()
     //     else
     //     {
     //         gear_text_render_->SetTextRenderColor(last_gear_display_reverse_color_);
-    //     }
-    // }
-}
-
-
-
-void ACustomCarPawn::updatePhysicsMaterial()
-{
-    // if (GetActorUpVector().Z < 0)
-    // {
-    //     if (is_low_friction_ == true)
-    //     {
-    //         GetMesh()->SetPhysMaterialOverride(non_slippery_mat_);
-    //         is_low_friction_ = false;
-    //     }
-    //     else
-    //     {
-    //         GetMesh()->SetPhysMaterialOverride(slippery_mat_);
-    //         is_low_friction_ = true;
     //     }
     // }
 }

@@ -20,7 +20,6 @@ CustomCarPawnSimApi::CustomCarPawnSimApi(const Params& params,
 void CustomCarPawnSimApi::createVehicleApi(ACustomCarPawn* pawn, const msr::airlib::GeoPoint& home_geopoint)
 {
     //create vehicle params
-    //std::shared_ptr<UnrealSensorFactory> sensor_factory = std::make_shared<UnrealSensorFactory>(getPawn(), &getNedTransform());
     vehicle_api_ = std::unique_ptr<CarApiBase>(new CustomCarPawnApi(pawn, getPawnKinematics(), home_geopoint));
 }
 
@@ -87,12 +86,6 @@ void CustomCarPawnSimApi::updateCarControls()
             return;
         }
         UAirBlueprintLib::LogMessageString("Control Mode: ", "Wheel/Joystick", LogDebugLevel::Informational);
-
-        //TODO: move this to SimModeBase?
-        //if ((joystick_state_.buttons & 4) | (joystick_state_.buttons & 1024)) { //X button or Start button
-        //    reset();
-        //    return;
-        //}
 
         // Thrustmaster devices
         if (rc_data.vendor_id == "VID_044F") {

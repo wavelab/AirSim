@@ -5,9 +5,7 @@
 
 CustomCarPawnApi::CustomCarPawnApi(ACustomCarPawn* pawn, const msr::airlib::Kinematics::State* pawn_kinematics, const msr::airlib::GeoPoint& home_geopoint)
     : pawn_(pawn), pawn_kinematics_(pawn_kinematics), home_geopoint_(home_geopoint)
-{
-    // movement_ = pawn->GetVehicleMovement();
-}
+{}
 
 bool CustomCarPawnApi::armDisarm(bool arm)
 {

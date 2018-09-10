@@ -34,7 +34,7 @@ class ACustomCarPawn : public APawn
 public:
     ACustomCarPawn();
 
-    virtual void BeginPlay() override;
+    // virtual void BeginPlay() override;
     virtual void Tick(float Delta) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation,
@@ -60,7 +60,6 @@ private:
     void updateHUDStrings();
     void setupVehicleMovementComponent();
     void updateInCarHUD();
-    void updatePhysicsMaterial();
 
     void setupInputBindings();
     void onMoveForward(float Val);
