@@ -43,7 +43,7 @@ ACustomCarPawn::ACustomCarPawn()
     camera_driver_base_->SetupAttachment(RootComponent);
 
     camera_back_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_back_center_base_"));
-    camera_back_center_base_->SetRelativeLocation(FVector(-400, 0, 200)); //rear
+    camera_back_center_base_->SetRelativeLocation(FVector(-700, 0, 200)); //rear
     camera_back_center_base_->SetupAttachment(RootComponent);
 
     // // In car HUD
@@ -127,10 +127,6 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     camera_back_center_->AttachToComponent(camera_back_center_base_, FAttachmentTransformRules::KeepRelativeTransform);
 
     setupInputBindings();
-
-    manual_pose_controller_ = NewObject<UManualPoseController>(this, "ComputerVision_ManualPoseController");
-    manual_pose_controller_->initializeForPlay();
-    manual_pose_controller_->setActor(this);
 }
 
 const common_utils::UniqueValueMap<std::string, APIPCamera*> ACustomCarPawn::getCameras() const
@@ -201,24 +197,19 @@ void ACustomCarPawn::Tick(float Delta)
 
     // Set the string in the in-car HUD
     updateInCarHUD();
-    
+
     // Update the vehicle model state
     VehiclePose newPose = updateVehicleModel();
 
     // Set the location and rotation of the carpawn in simulation
     this->SetActorLocationAndRotation(newPose.location, newPose.rotation);
 
-    //update ground level
-    if (manual_pose_controller_->getActor() == this) {
-        manual_pose_controller_->updateActorPose(Delta);
-    }
-
     pawn_events_.getPawnTickSignal().emit(Delta);
 }
 
 void ACustomCarPawn::updateHUDStrings()
 {
-    // TODO re-enable these logs once done changeover
+    // TODO re-enable these logs to use vehicle model info
 
 	float speed_unit_factor = AirSimSettings::singleton().speed_unit_factor;
 	FText speed_unit_label = FText::FromString(FString(AirSimSettings::singleton().speed_unit_label.c_str()));
@@ -297,10 +288,6 @@ void ACustomCarPawn::setupInputBindings()
 
     UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("Footbrake", EKeys::Gamepad_LeftTriggerAxis, 1), this,
         this, &ACustomCarPawn::onFootBrake);
-
-    //below is not needed
-    //UAirBlueprintLib::BindActionToKey("Reverse", EKeys::Down, this, &ACustomCarPawn::onReversePressed, true);
-    //UAirBlueprintLib::BindActionToKey("Reverse", EKeys::Down, this, &ACustomCarPawn::onReverseReleased, false);
 }
 
 void ACustomCarPawn::onMoveForward(float Val)

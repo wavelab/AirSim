@@ -1005,7 +1005,7 @@ private:
         }
 
         if (std::isnan(camera_director.follow_distance)) {
-            if (simmode_name == "Car")
+            if (simmode_name == "Car" || simmode_name == "CustomCar")
                 camera_director.follow_distance = -8;
             else
                 camera_director.follow_distance = -3;
@@ -1015,7 +1015,7 @@ private:
         if (std::isnan(camera_director.position.y()))
             camera_director.position.y() = 0;
         if (std::isnan(camera_director.position.z())) {
-            if (simmode_name == "Car")
+            if (simmode_name == "Car" || simmode_name == "CustomCar")
                 camera_director.position.z() = -4;
             else
                 camera_director.position.z() = -2;
