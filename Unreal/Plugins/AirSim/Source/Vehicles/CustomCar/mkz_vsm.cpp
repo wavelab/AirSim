@@ -95,32 +95,41 @@ VehicleState MkzVsm::getVehicleState() {
     WheelState rl_ws;
     WheelState rr_ws;
 
+    // output variables according to
+    // https://docs.google.com/spreadsheets/d/1CHTJ4xOndvNkg14Urvsw0p-Htb5q7pTLX4XYuwyAojE/
+    // changed for Sep 26, 2018 model.
+
+    // "Rear Axle" = base_link frame
+    // "Chassis" = ??
     // Vehicle body
-    position.x = output_array[9]; 
-    position.y = -output_array[10];
-    position.z = output_array[11];
+    position.x = output_array[35];    // Global X-Position of Chassis
+    position.y = -output_array[36];   // Global Y-Position of Chassis
+    position.z = output_array[37];    // Global Z-Position of Chassis
     vehicle_state.position = position;
-    orientation.x = output_array[3]; 
-    orientation.y = output_array[4];
-    orientation.z = output_array[5];
+
+    orientation.x = output_array[12];  // Angle of the Chassis about the X-axis (Roll Angle)
+    orientation.y = output_array[13];  // Angle of the Chassis about the Y-axis (Pitch Angle)
+    orientation.z = output_array[14];  // Angle of the Chassis about the Z-axis (Yaw Angle)
     vehicle_state.orientation = orientation;
-    velocity.x = output_array[12];
-    velocity.y = output_array[13];
-    velocity.z = output_array[14];
+
+    velocity.x = output_array[18];    // Longitudinal Velocity of the Chassis
+    velocity.y = output_array[19];    // Lateral Velocity of the Chassis
+    velocity.z = output_array[20];    // Vertical Velocity of the Chassis
     vehicle_state.velocity = velocity;
-    angular_velocity.x = output_array[31];
-    angular_velocity.y = output_array[32];
-    angular_velocity.z = output_array[33];
+
+    angular_velocity.x = output_array[15];  // Angular Velocity of the Chassis about X-axis (Roll Rate)
+    angular_velocity.y = output_array[16];  // Angular Velocity of the Chassis about Y-axis (Pitch Rate)
+    angular_velocity.z = output_array[17];  // Angular Velocity of the Chassis about Z-axis (Yaw Rate)
     vehicle_state.angular_velocity = angular_velocity;
 
     // Wheel states
-    fl_ws.angular_velocity = output_array[18];
+    fl_ws.angular_velocity = output_array[27];  // Angular Velocity of the Front Left Wheel
     vehicle_state.fl_wheel_state = fl_ws;
-    fr_ws.angular_velocity = output_array[23];
+    fr_ws.angular_velocity = output_array[34];  // Angular Velocity of the Front Right Wheel
     vehicle_state.fr_wheel_state = fr_ws;
-    rl_ws.angular_velocity = output_array[46];
+    rl_ws.angular_velocity = output_array[47];  // Angular Velocity of the Rear Left Wheel
     vehicle_state.rl_wheel_state = rl_ws;
-    rr_ws.angular_velocity = output_array[53];
+    rr_ws.angular_velocity = output_array[54];  // Angular Velocity of the Rear Right Wheel
     vehicle_state.rr_wheel_state = rr_ws;
 
     vehicle_state.time = this->time;
