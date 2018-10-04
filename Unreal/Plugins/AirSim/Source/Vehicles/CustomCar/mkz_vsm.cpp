@@ -4,8 +4,9 @@
 MkzVsm::MkzVsm() {
     solver.w = float_workspace;
     solver.err = 0;
-    // error_buffer[0] = NULL;
-
+     // make sure the solver has space for error messages
+    solver.buf = error_buffer;
+    
     // Param defaults
     this->steering_ratio = 14.8;
     this->steering_range.min = -8.48;
@@ -35,7 +36,7 @@ void MkzVsm::init() {
     if (solver.err > 0) {
         printf("%s\n", solver.buf);
     }
-    solver.buf = error_buffer;
+    
 }
 
 void MkzVsm::init(Vector3 init_position) {
