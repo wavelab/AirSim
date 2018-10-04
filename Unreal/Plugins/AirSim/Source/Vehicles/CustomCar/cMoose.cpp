@@ -5,11 +5,11 @@ Summary of edits:
 
 * lines 414-438 have been moved to cMoose.h
 * "char *str=malloc..." ->
-  "char *str=(char*) malloc..."
+  "char *str=(char*)malloc..."
 * "static void SolverError(SolverStruct *S, int term, char *errmsg)" ->
   "static void SolverError(SolverStruct *S, int term, char const *errmsg)"
 * "S.w=malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));" ->
-  "S.w=(double*) malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));"
+  "S.w=(double*)malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));"
 * "int" ->
   "long"
 
@@ -103,28 +103,28 @@ void toMapleError(char *msg, ...)
 
 char* toMapleInteger(long i)
 {
-	char *str=(char*) malloc(21);
+	char *str=(char*)malloc(21);
 	sprintf(str,"%li",(long)i);
 	return(str);
 }
 
 char* toMapleFloat(double f)
 {
-	char *str=(char*) malloc(20);
+	char *str=(char*)malloc(20);
 	sprintf(str,"%f",f);
 	return(str);
 }
 
 char* toMapleString(const char *s)
 {
-	char *str=(char*) malloc(strlen(s)+1);
+	char *str=(char*)malloc(strlen(s)+1);
 	strcpy(str,s);
 	return(str);
 }
 
 char* toMapleBoolean(long b)
 {
-	char *str=(char*) malloc(6);
+	char *str=(char*)malloc(6);
 	switch(b) {
 	case 0:
 		strcpy(str,"false");
@@ -415,19 +415,6 @@ long icvis[64] = {
 #define EVTHYST 1.000000e-10
 #define INCONTOL 1e200
 
-/* Wordsize integer definition */
-#ifndef M_INT
-# if defined _MINGW64 || defined X86_64_WINDOWS
-#  define M_INT long long
-# elif defined __x86_64__ || defined __ppc64__
-#  define M_INT long
-# elif defined _M_X64
-#  define M_INT long long
-# else
-#  define M_INT int
-# endif
-#endif
-
 static void SolverError(SolverStruct *S, long term, char const *errmsg)
 {
 #ifdef FROM_MAPLE
@@ -456,18 +443,6 @@ static double *dsn_neginf = (double *)&dsn_neginfC;
 #define IS_UNDEF(a) (a-a!=0. || (a!=0. && a-2.*a==0.))
 #define UNUSED(a) ((void)(a))
 double avoidcompilerwarn() { return(dsn_zero+*dsn_undef+*dsn_posinf+*dsn_neginf); }
-#ifndef M_INT
-# if defined _MINGW64 || defined X86_64_WINDOWS
-#  define M_INT long long
-# elif defined __x86_64__ || defined __ppc64__
-#  define M_INT long
-# elif defined _M_X64
-#  define M_INT long long
-# else
-#  define M_INT int
-# endif
-#endif
-
 
 static const double _TID_T2[65] = {
 -4.36331999999999998e-01, 2.47299999999999986e+00, 1.64199999999999990e+00, 4.54000000000000015e-01,
@@ -503,21 +478,21 @@ static const double _TID_T1[55] = {
 	2.56000000000000005e-01, 4.00000000000000022e-01, 5.21300000000000008e+00, 1.32000000000000006e+00,
 	8.35999999999999965e-01, 1.23999999999999999e-01, 5.00000000000000000e-01, 5.21300000000000008e+00,
 	1.32000000000000006e+00, 8.35999999999999965e-01, 1.23999999999999999e-01};
-static const M_INT _TID_NUMBER = 2;
+static const long _TID_NUMBER = 2;
 static const double *_TID_TABLE[2] = {_TID_T1,_TID_T2};
-static const M_INT _TID_D1[2] = {11,13};
-static const M_INT _TID_D2[2] = {5,5};
-static const M_INT _TID_SMOOTH[2] = {0,0};
-static const M_INT _TID_EXTRA[2] = {2,2};
+static const long _TID_D1[2] = {11,13};
+static const long _TID_D2[2] = {5,5};
+static const long _TID_SMOOTH[2] = {0,0};
+static const long _TID_EXTRA[2] = {2,2};
 
 
 #ifdef MSVC
 #pragma optimize( "gty", on)
 #endif
-static double Interp1Dsim(M_INT tid, M_INT c, double x, M_INT dx)
+static double Interp1Dsim(long tid, long c, double x, long dx)
 {
 	double dx1, dx2, t0, t1, t2, x1, x2;
-	M_INT nx, ny, extra, typ, i, i1, mi, l, r;
+	long nx, ny, extra, typ, i, i1, mi, l, r;
 	const double *T;
 
 	if( tid<1 || tid>_TID_NUMBER )
@@ -709,9 +684,9 @@ static double Interp1Dsim(M_INT tid, M_INT c, double x, M_INT dx)
 #define INCONTOL 1e-14
 #endif
 
-static void LSQDecompSolve(M_INT n, double *A, M_INT Ainc, M_INT *ip, double *b)
+static void LSQDecompSolve(long n, double *A, long Ainc, long *ip, double *b)
 {
-	M_INT i,j,k,r,c,lsq,cp;
+	long i,j,k,r,c,lsq,cp;
 	double s,t;
 
 	for(i=0;i<n;i++) {
@@ -860,9 +835,9 @@ static void LSQDecompSolve(M_INT n, double *A, M_INT Ainc, M_INT *ip, double *b)
 #ifdef MSVC
 #pragma optimize( "gty", on)
 #endif
-static void DecompCInc(M_INT n, double *A, M_INT Ainc, M_INT *ip)
+static void DecompCInc(long n, double *A, long Ainc, long *ip)
 {
-	M_INT i,j,k,m;
+	long i,j,k,m;
 	double t;
 
 	ip[n-1]=1;
@@ -891,9 +866,9 @@ static void DecompCInc(M_INT n, double *A, M_INT Ainc, M_INT *ip)
 #ifdef MSVC
 #pragma optimize( "gty", on)
 #endif
-static void MultiSolveCInc(M_INT n, double *A, M_INT Ainc, M_INT *ip, M_INT nb, double *b, M_INT binc)
+static void MultiSolveCInc(long n, double *A, long Ainc, long *ip, long nb, double *b, long binc)
 {
-	M_INT i,j,k,m;
+	long i,j,k,m;
 	double t;
 
 	if( n>1 ) {
@@ -923,7 +898,7 @@ static void fp(long N, double T, double *Y, double *YP)
 {
 	double M[3120], V[39], Z[366], td1;
 	long ti1, ti2;
-	M_INT P[77];
+	long P[77];
 
 	UNUSED(N);
 	UNUSED(T);
@@ -4713,7 +4688,7 @@ static long Projection(
 )
 {
 	long i, j, k, r, c, iter, nc2;
-	M_INT ip[NCON],per[NDIFF];
+	long ip[NCON],per[NDIFF];
 	double scl, resmag, val, val2, R[NCON],J[NCON*NDIFF],A[NCON*NCON];
 #if NCON*NCON>NDIFF
 	double iA[NCON*NCON];
@@ -5960,7 +5935,7 @@ EXP long M_DECL ParamDriverMC(double t0, double dt, long npts, long stepsperpt, 
 	/* Setup */
 	y[0]=0.0; y[NOUT]=0.0; /* Compiler warnings */
 	for(i=0;i<(npts+EPT*(npts-1))*(NOUT+1);i++) out[i]=*dsn_undef;
-	S.w=(double*) malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));
+	S.w=(double*)malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));
 	if(internal==0) S.err=0; else S.err=-1;
 	S.buf=errbuf;
 	SolverSetup(t0,ic,u,p,y,dt,&S);
@@ -6040,7 +6015,7 @@ EXP long M_DECL ParamDriverC(double t0, double dt, long npts, double *ic, double
 EXP ALGEB M_DECL ParamDriver( MKernelVector kv_in, ALGEB *args )
 {
 	double t0,tf,dt,*ic,*p,*out;
-	M_INT nargs,bounds[4],npts,naout,stepsperpt,sppa=0,i;
+	long nargs,bounds[4],npts,naout,stepsperpt,sppa=0,i;
 	RTableSettings s;
 	ALGEB outd,halt;
 	char buf[10000];
@@ -6070,7 +6045,7 @@ EXP ALGEB M_DECL ParamDriver( MKernelVector kv_in, ALGEB *args )
 		sppa=1;
 	else
 		stepsperpt=1;
-	npts=(M_INT)floor((tf+1e-10*dt-t0)/(stepsperpt*dt))+1;
+	npts=(long)floor((tf+1e-10*dt-t0)/(stepsperpt*dt))+1;
 
 	/* Processing ic in */
 	if( NDIFF==0 )
