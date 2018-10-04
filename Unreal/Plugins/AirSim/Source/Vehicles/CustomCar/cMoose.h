@@ -24,8 +24,8 @@
 typedef struct {
 	double h;		/* Integration step size */
 	double *w;		/* Float workspace */
-	int *iw;		/* Integer workspace */
-	int err;			/* Error flag */
+	long *iw;		/* Integer workspace */
+	long err;			/* Error flag */
 	char *buf;		/* Error message */
 } SolverStruct;
 

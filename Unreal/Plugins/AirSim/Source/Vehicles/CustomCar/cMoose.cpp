@@ -10,6 +10,8 @@ Summary of edits:
   "static void SolverError(SolverStruct *S, int term, char const *errmsg)"
 * "S.w=malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));" ->
   "S.w=(double*) malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));"
+* "int" ->
+  "long"
 
 *************************************************************************/
 
@@ -46,7 +48,7 @@ void toMapleError(char *msg, ...)
 {
 	char fcpy[MAXSTRINGLENGTH+1],*offs[MAXNUMPART+1],
 		*msg_pars[MAXNUMPART+1],res_str[MAXSTRINGLENGTH+1];
-	int argref[MAXNUMPART],maxargref,npart,v,i,j,res_len;
+	long argref[MAXNUMPART],maxargref,npart,v,i,j,res_len;
 	va_list argptr;
 
 	if(strlen(msg)>MAXSTRINGLENGTH)
@@ -99,7 +101,7 @@ void toMapleError(char *msg, ...)
 	fprintf(stderr,"Error: %s\n",res_str);
 }
 
-char* toMapleInteger(int i)
+char* toMapleInteger(long i)
 {
 	char *str=(char*) malloc(21);
 	sprintf(str,"%li",(long)i);
@@ -120,7 +122,7 @@ char* toMapleString(const char *s)
 	return(str);
 }
 
-char* toMapleBoolean(int b)
+char* toMapleBoolean(long b)
 {
 	char *str=(char*) malloc(6);
 	switch(b) {
@@ -132,18 +134,18 @@ char* toMapleBoolean(int b)
 	}
 }
 
-void toMapleUserinfo(int level, char *name, char *msg)
+void toMapleUserinfo(long level, char *name, char *msg)
 {
 	printf("Info: %s:%s\n",name,msg);
 }
 
 typedef struct MKernelVectorDesc {
     void (*error)(char *msg, /* char *par1, *par2, */ ...);
-	char* (*toMapleInteger)(int i);
+	char* (*toMapleInteger)(long i);
 	char* (*toMapleFloat)(double f);
 	char* (*toMapleString)(const char *s);
-	char* (*toMapleBoolean)(int b);
-	void (*userinfo)(int level, char *name, char *msg);
+	char* (*toMapleBoolean)(long b);
+	void (*userinfo)(long level, char *name, char *msg);
 } MKernelVectorDesc, *MKernelVector;
 
 MKernelVectorDesc mykv = {
@@ -381,7 +383,7 @@ MKernelVector kv= &mykv;
 ************************************************/
 
 /* Set up fixed initial condition mask */
-int icmask[64] = {
+long icmask[64] = {
 	1,1,1,1,0,1,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,1,1,1,1,1,
@@ -391,7 +393,7 @@ int icmask[64] = {
 	1,1,1,1};
 
 /* Set up visible initial condition mask */
-int icvis[64] = {
+long icvis[64] = {
 	1,1,1,1,1,1,1,1,1,1,
 	1,1,1,1,1,1,1,1,1,1,
 	1,1,1,1,1,1,1,1,1,1,
@@ -426,10 +428,10 @@ int icvis[64] = {
 # endif
 #endif
 
-static void SolverError(SolverStruct *S, int term, char const *errmsg)
+static void SolverError(SolverStruct *S, long term, char const *errmsg)
 {
 #ifdef FROM_MAPLE
-	int i;
+	long i;
 #endif
 	if(term)
 		sprintf(S->buf,"Simulation terminated at t=%20.16e: %s\n",S->w[0],errmsg);
@@ -917,10 +919,10 @@ static void MultiSolveCInc(M_INT n, double *A, M_INT Ainc, M_INT *ip, M_INT nb, 
 #pragma optimize( "", on)
 #endif
 
-static void fp(int N, double T, double *Y, double *YP)
+static void fp(long N, double T, double *Y, double *YP)
 {
 	double M[3120], V[39], Z[366], td1;
-	int ti1, ti2;
+	long ti1, ti2;
 	M_INT P[77];
 
 	UNUSED(N);
@@ -3528,7 +3530,7 @@ static void Rp(double T, double *Y, double *R)
 
 static void Jp(double T, double *Y, double *J)
 {
-	int ti1, ti2;
+	long ti1, ti2;
 
 	UNUSED(T);
 	UNUSED(Y);
@@ -3639,7 +3641,7 @@ static void eev(double T, double *Y, double *Ypre, double *EA)
 	EA[79] = T-Y[444];
 }
 
-static int eex(int N, double T, double *Y, double *Ypre)
+static long eex(long N, double T, double *Y, double *Ypre)
 {
 	if( N<17 ) {
 		if( N==1 )
@@ -3817,8 +3819,8 @@ static int eex(int N, double T, double *Y, double *Ypre)
 	}
 	else if( N==81 ) {
 		if( Y[361]==1. ) {
-			Y[443] = 0.05*( (((int)trunc(ceil(20.*T)))<0) ? 0. : ceil(20.*T) )+1e-20;
-			Y[444] = Y[467]*( (((int)trunc(ceil(T/Y[467])))<0) ? 0. : ceil(T/Y[467]) )+1e-20;
+			Y[443] = 0.05*( (((long)trunc(ceil(20.*T)))<0) ? 0. : ceil(20.*T) )+1e-20;
+			Y[444] = Y[467]*( (((long)trunc(ceil(T/Y[467])))<0) ? 0. : ceil(T/Y[467]) )+1e-20;
 		}
 		if( !(fabs(Y[448])>0.) ) {
 			Y[362] = 1.;
@@ -4050,10 +4052,10 @@ static int eex(int N, double T, double *Y, double *Ypre)
 	return(0);
 }
 
-static int cpr(double T, double *Y)
+static long cpr(double T, double *Y)
 {
 	double v;
-	int k;
+	long k;
 
 	UNUSED(T);
 	k = 0;
@@ -4702,15 +4704,15 @@ static void inpfn(double T, double *U)
 	2 - Row of Jacobian is zero, but residual is nonzero
 	3 - Iteration limit reached
 */
-static int Projection(
+static long Projection(
 	double t,		/* Current time */
 	double *x,		/* Current solution (updated) */
 	double tol,		/* Tolerance limit for iteration */
-	int maxiter,	/* Max iteration limit */
+	long maxiter,	/* Max iteration limit */
 	double *w		/* Weight vector */
 )
 {
-	int i, j, k, r, c, iter, nc2;
+	long i, j, k, r, c, iter, nc2;
 	M_INT ip[NCON],per[NDIFF];
 	double scl, resmag, val, val2, R[NCON],J[NCON*NDIFF],A[NCON*NCON];
 #if NCON*NCON>NDIFF
@@ -4882,18 +4884,18 @@ static int Projection(
 	2 - Projection not converging
 	3 - Iteration limit reached
 */
-static int ProjectInitial(
+static long ProjectInitial(
 	double t,			/* t0 */
 	double *x,			/* Current solution (updated) */
 	double ptol,		/* Tolerance limit for iteration for projection */
-	int pmaxiter,	/* Max iteration limit for projection */
-	int *icmask,	/* Fixed IC mask vector */
+	long pmaxiter,	/* Max iteration limit for projection */
+	long *icmask,	/* Fixed IC mask vector */
 	double tol,		/* Convergence tolerance */
-	int maxiter,	/* Max limit for number of calls to projection */
+	long maxiter,	/* Max limit for number of calls to projection */
 	double W			/* Default fixed IC weight */
 )
 {
-	int i, ip, iter;
+	long i, ip, iter;
 	double delta1, delta2, val, w[NDIFF], ic[NDIFF];
 
 	for(i=0;i<NDIFF;i++) {
@@ -4937,18 +4939,18 @@ static int ProjectInitial(
 	if( iter==maxiter ) return(3); else return(0);
 }
 
-static void terminate(SolverStruct *S, int j)
+static void terminate(SolverStruct *S, long j)
 {
 	if(j==1) SolverError(S,1,"Modelica assertion (0 < abs(Main.FullModel.'Brake Clutch Mode'.'Powertrain Parameters'.R_mot2wh)) failed in Main.FullModel.'Brake Clutch Mode'.BG4: Error in initialization of LossyGear: ratio may not be zero");
 	if(j==2) SolverError(S,1,"Modelica assertion (0 < abs(Main.FullModel.'Brake Clutch Mode'.'Powertrain Parameters'.R_ring2wh)) failed in Main.FullModel.'Brake Clutch Mode'.BG1: Error in initialization of LossyGear: ratio may not be zero");
 	if(j==3) SolverError(S,1,"Modelica assertion (1 < Main.FullModel.'Brake Clutch Mode'.'Powertrain Parameters'.rho ^ (-1)) failed in Main.FullModel.'Brake Clutch Mode'.PG1: Error in initialization of Planetary Gear: ratio must be strictly greater than one");
 }
 
-static int RunEvents(SolverStruct *S, double *w, int *modes, int first, int termvar, int maxiter)
+static long RunEvents(SolverStruct *S, double *w, long *modes, long first, long termvar, long maxiter)
 {
 	double t,*y,*yp,*ypre,*tval;
-	int *m=NULL,*oldmodes,*inc,*req;
-	int i,flag,iter,evt,rc,failskip;
+	long *m=NULL,*oldmodes,*inc,*req;
+	long i,flag,iter,evt,rc,failskip;
 
 	/* Transfer data to approp. named arrays */
 	t=w[0]; y=&w[1]; yp=&y[NEQ+NPAR]; ypre=&yp[NDFA]; tval=&ypre[NEQ];
@@ -5019,7 +5021,7 @@ static int RunEvents(SolverStruct *S, double *w, int *modes, int first, int term
 #endif
 					rc=eex(evt+1,t,y,ypre);
 					if(termvar>=0 && y[termvar]>0.0) {
-						i=(int)y[termvar];
+						i=(long)y[termvar];
 						terminate(S,i);
 						return(i);
 					}
@@ -5042,7 +5044,7 @@ static int RunEvents(SolverStruct *S, double *w, int *modes, int first, int term
 		else
 			failskip=0;
 		if(termvar>=0 && y[termvar]>0.0) {
-			i=(int)y[termvar];
+			i=(long)y[termvar];
 			terminate(S,i);
 			return(i);
 		}
@@ -5117,7 +5119,7 @@ static int RunEvents(SolverStruct *S, double *w, int *modes, int first, int term
 	return(0);
 }
 
-static void numdiffinp(double *w, int initial)
+static void numdiffinp(double *w, long initial)
 {
 	double dt1,dt2,idt1,idt2,idt12,*nd1,*nd2;
 
@@ -5143,9 +5145,9 @@ static void numdiffinp(double *w, int initial)
 	}
 }
 
-static void SolverUpdate(double *u, int internal, SolverStruct *S)
+static void SolverUpdate(double *u, long internal, SolverStruct *S)
 {
-	int i;
+	long i;
 
 	inpfn(S->w[0],u);
 	for(i=0;i<NINP;i++) S->w[i+NDIFF+NIX1-NINP+1]=u[i];
@@ -5286,7 +5288,7 @@ static void SolverOutputs(double *y, SolverStruct *S)
 
 static void RK4Step(double *u, SolverStruct *S)
 {
-	int i;
+	long i;
 	double y[NEQ+1],yp1[NDFA],yp2[NDFA],yp3[NDFA];
 
 	for(i=0;i<NEQ+1;i++) y[i]=S->w[i];
@@ -5307,10 +5309,10 @@ static void RK4Step(double *u, SolverStruct *S)
 
 static void SolverSetup(double t0, double *ic, double *u, double *p, double *y, double h, SolverStruct *S)
 {
-	int i, j;
+	long i, j;
 
 	S->h = h;
-	S->iw=(int *)malloc(2*(NEVT+NZC)*sizeof(int));
+	S->iw=(long *)malloc(2*(NEVT+NZC)*sizeof(long));
 	S->w[0] = t0;
 	S->w[1] =  0.00000000000000000e+00;
 	S->w[2] =  0.00000000000000000e+00;
