@@ -6,7 +6,7 @@ MkzVsm::MkzVsm() {
     solver.err = 0;
      // make sure the solver has space for error messages
     solver.buf = error_buffer;
-    
+
     // Param defaults
     this->steering_ratio = 14.8;
     this->steering_range.min = -8.48;
@@ -36,7 +36,7 @@ void MkzVsm::init() {
     if (solver.err > 0) {
         printf("%s\n", solver.buf);
     }
-    
+
 }
 
 void MkzVsm::init(Vector3 init_position) {
@@ -101,7 +101,7 @@ VehicleState MkzVsm::getVehicleState() {
     // changed for Sep 26, 2018 model.
 
     // "Rear Axle" = base_link frame
-    // "Chassis" = ??
+    // "Chassis" = center of the mass, not in TF
     // Vehicle body
     position.x = output_array[35];    // Global X-Position of Chassis
     position.y = -output_array[36];   // Global Y-Position of Chassis
@@ -113,9 +113,9 @@ VehicleState MkzVsm::getVehicleState() {
     orientation.z = output_array[14];  // Angle of the Chassis about the Z-axis (Yaw Angle)
     vehicle_state.orientation = orientation;
 
-    velocity.x = output_array[18];    // Longitudinal Velocity of the Chassis
-    velocity.y = output_array[19];    // Lateral Velocity of the Chassis
-    velocity.z = output_array[20];    // Vertical Velocity of the Chassis
+    velocity.x = output_array[38];    // Longitudinal Velocity of the Chassis
+    velocity.y = output_array[39];    // Lateral Velocity of the Chassis
+    velocity.z = output_array[40];    // Vertical Velocity of the Chassis
     vehicle_state.velocity = velocity;
 
     angular_velocity.x = output_array[15];  // Angular Velocity of the Chassis about X-axis (Roll Rate)
