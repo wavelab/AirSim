@@ -6,6 +6,8 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "UObject/ConstructorHelpers.h"
 
+#include "GameFramework/RotatingMovementComponent.h"
+
 #include "physics/Kinematics.hpp"
 #include "vehicles/car/api/CarApiBase.hpp"
 #include "common/AirSimSettings.hpp"
@@ -89,6 +91,8 @@ private:
     bool is_low_friction_;
     // UPhysicalMaterial* slippery_mat_;
     // UPhysicalMaterial* non_slippery_mat_;
+    float tire_angle_;
+    bool even;
 
     UPROPERTY() USceneComponent* camera_front_center_base_;
     UPROPERTY() USceneComponent* camera_front_left_base_;
@@ -102,6 +106,16 @@ private:
     UPROPERTY() APIPCamera* camera_driver_;
     UPROPERTY() APIPCamera* camera_back_center_;
     // UPROPERTY() UManualPoseController* manual_pose_controller_;
+
+    UPROPERTY() URotatingMovementComponent* rotating_movement_fl_;
+    UPROPERTY() URotatingMovementComponent* rotating_movement_fr_;
+    UPROPERTY() URotatingMovementComponent* rotating_movement_bl_;
+    UPROPERTY() URotatingMovementComponent* rotating_movement_br_;
+
+    UPROPERTY() UStaticMeshComponent* wheel_fl_;
+    UPROPERTY() UStaticMeshComponent* wheel_fr_;
+    UPROPERTY() UStaticMeshComponent* wheel_bl_;
+    UPROPERTY() UStaticMeshComponent* wheel_br_;
 
     UTextRenderComponent* speed_text_render_;
     UTextRenderComponent* gear_text_render_;

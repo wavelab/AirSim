@@ -6,6 +6,8 @@
 #include "Sound/SoundCue.h"
 #include "WheeledVehicleMovementComponent4W.h"
 
+#include "GameFramework/RotatingMovementComponent.h"
+
 #include "AirBlueprintLib.h"
 #include <vector>
 #include "common/common_utils/Utils.hpp"
@@ -24,7 +26,13 @@ ACustomCarPawn::ACustomCarPawn()
 
     setupVehicleMovementComponent();
 
-    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+    //RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+
+    //FTransform wheel_fl_transform(FVector::ZeroVector);
+    //FActorSpawnParameters wheel_fl_spawn_params;
+    //wheel_fl_spawn_params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    //wheel_fl_ = this->GetWorld()->SpawnActor<AActor>(pip_camera_class_, wheel_fl_transform, wheel_fl_spawn_params);
 
     camera_front_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_front_center_base_"));
     camera_front_center_base_->SetRelativeLocation(FVector(200, 0, 100)); //center
@@ -84,6 +92,10 @@ void ACustomCarPawn::setupVehicleMovementComponent()
 void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
 {
     vehicle_model_.setVehicleInput(vehicle_input);
+    float steering = vehicle_input.steering_angle; 
+    if (steering < -8.48f) steering = -8.48f;
+    else if (steering > 8.48f) steering = 8.48f;
+    tire_angle_ = (steering/14.8f)*RAD2DEG;
 }
 
 VehicleState ACustomCarPawn::getVehicleState()
@@ -125,6 +137,16 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     camera_back_center_ = this->GetWorld()->SpawnActor<APIPCamera>(pip_camera_class_,
         FTransform(FRotator(0, -180, 0), FVector::ZeroVector), camera_spawn_params);
     camera_back_center_->AttachToComponent(camera_back_center_base_, FAttachmentTransformRules::KeepRelativeTransform);
+
+    rotating_movement_fl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_fl_rotation"));
+    rotating_movement_fr_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_fr_rotation"));
+    rotating_movement_bl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_bl_rotation"));
+    rotating_movement_br_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_br_rotation"));
+
+    wheel_fl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fl"));
+    wheel_fr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fr"));
+    wheel_bl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_bl"));
+    wheel_br_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_br"));
 
     setupInputBindings();
 }
@@ -205,6 +227,25 @@ void ACustomCarPawn::Tick(float Delta)
     this->SetActorLocationAndRotation(newPose.location, newPose.rotation);
 
     pawn_events_.getPawnTickSignal().emit(Delta);
+
+    if (even) {
+        FRotator rot(0,tire_angle_,0);
+        wheel_fl_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
+        wheel_fr_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
+        even = false;
+    }
+    else {
+        rotating_movement_fl_->RotationRate.Roll = vehicle_state_.fl_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_fr_->RotationRate.Roll = vehicle_state_.fr_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_bl_->RotationRate.Roll = vehicle_state_.rl_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_br_->RotationRate.Roll = vehicle_state_.rr_wheel_state.angular_velocity*RAD2DEG;
+
+        rotating_movement_fl_->SetUpdatedComponent(wheel_fl_);
+        rotating_movement_fr_->SetUpdatedComponent(wheel_fr_);
+        rotating_movement_bl_->SetUpdatedComponent(wheel_bl_);
+        rotating_movement_br_->SetUpdatedComponent(wheel_br_);
+        even = true;
+    }
 }
 
 void ACustomCarPawn::updateHUDStrings()
