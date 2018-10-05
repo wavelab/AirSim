@@ -34,7 +34,7 @@ void MkzVsm::init() {
     SolverSetup(t0, ic, input_array, p, output_array, dt, &solver);
 
     if (solver.err > 0) {
-        printf("%s\n", solver.buf);
+        printf("MkzVsm::init(): %s\n", solver.buf);
     }
 
 }
@@ -102,25 +102,42 @@ VehicleState MkzVsm::getVehicleState() {
 
     // "Rear Axle" = base_link frame
     // "Chassis" = center of the mass, not in TF
-    // Vehicle body
+
+    // Vehicle body (using chassis)
     position.x = output_array[35];    // Global X-Position of Chassis
     position.y = -output_array[36];   // Global Y-Position of Chassis
     position.z = output_array[37];    // Global Z-Position of Chassis
     vehicle_state.position = position;
 
-    orientation.x = output_array[12];  // Angle of the Chassis about the X-axis (Roll Angle)
-    orientation.y = output_array[13];  // Angle of the Chassis about the Y-axis (Pitch Angle)
-    orientation.z = output_array[14];  // Angle of the Chassis about the Z-axis (Yaw Angle)
+    // orientation.x = output_array[12];  // Angle of the Chassis about the X-axis (Roll Angle)
+    // orientation.y = output_array[13];  // Angle of the Chassis about the Y-axis (Pitch Angle)
+    // orientation.z = output_array[14];  // Angle of the Chassis about the Z-axis (Yaw Angle)
+    // vehicle_state.orientation = orientation;
+
+    // velocity.x = output_array[38];    // Longitudinal Velocity of the Chassis
+    // velocity.y = output_array[39];    // Lateral Velocity of the Chassis
+    // velocity.z = output_array[40];    // Vertical Velocity of the Chassis
+    // vehicle_state.velocity = velocity;
+
+    // angular_velocity.x = output_array[15];  // Angular Velocity of the Chassis about X-axis (Roll Rate)
+    // angular_velocity.y = output_array[16];  // Angular Velocity of the Chassis about Y-axis (Pitch Rate)
+    // angular_velocity.z = output_array[17];  // Angular Velocity of the Chassis about Z-axis (Yaw Rate)
+    // vehicle_state.angular_velocity = angular_velocity;
+
+    // Vehicle body (using base_link)
+    orientation.x = output_array[3];  // Angle of the Rear Axle about the X-axis (Roll Angle)
+    orientation.y = output_array[4];  // Angle of the Rear Axle about the Y-axis (Pitch Angle)
+    orientation.z = output_array[5];  // Angle of the Rear Axle about the Z-axis (Yaw Angle)
     vehicle_state.orientation = orientation;
 
-    velocity.x = output_array[38];    // Longitudinal Velocity of the Chassis
-    velocity.y = output_array[39];    // Lateral Velocity of the Chassis
-    velocity.z = output_array[40];    // Vertical Velocity of the Chassis
+    velocity.x = output_array[55];    // Longitudinal Velocity at Rear Axle
+    velocity.y = output_array[56];    // Lateral Velocity at Rear Axle
+    velocity.z = output_array[57];    // Vertical Velocity at Rear Axle
     vehicle_state.velocity = velocity;
 
-    angular_velocity.x = output_array[15];  // Angular Velocity of the Chassis about X-axis (Roll Rate)
-    angular_velocity.y = output_array[16];  // Angular Velocity of the Chassis about Y-axis (Pitch Rate)
-    angular_velocity.z = output_array[17];  // Angular Velocity of the Chassis about Z-axis (Yaw Rate)
+    angular_velocity.x = output_array[6];  // Angular Velocity about X-axis at Rear Axle (Roll Rate)
+    angular_velocity.y = output_array[7];  // Angular Velocity about Y-axis at Rear Axle (Pitch Rate)
+    angular_velocity.z = output_array[8];  // Angular Velocity about Z-axis at Rear Axle (Yaw Rate)
     vehicle_state.angular_velocity = angular_velocity;
 
     // Wheel states
