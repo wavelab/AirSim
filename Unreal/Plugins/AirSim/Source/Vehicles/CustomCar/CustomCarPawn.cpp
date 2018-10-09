@@ -26,13 +26,7 @@ ACustomCarPawn::ACustomCarPawn()
 
     setupVehicleMovementComponent();
 
-    //RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
-    //FTransform wheel_fl_transform(FVector::ZeroVector);
-    //FActorSpawnParameters wheel_fl_spawn_params;
-    //wheel_fl_spawn_params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-    //wheel_fl_ = this->GetWorld()->SpawnActor<AActor>(pip_camera_class_, wheel_fl_transform, wheel_fl_spawn_params);
+    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
     camera_front_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_front_center_base_"));
     camera_front_center_base_->SetRelativeLocation(FVector(200, 0, 100)); //center
@@ -229,13 +223,13 @@ void ACustomCarPawn::Tick(float Delta)
 
     pawn_events_.getPawnTickSignal().emit(Delta);
 
-    if (even) {
+    if (even) { // Set tire angle
         FRotator rot(0,tire_angle_,0);
         wheel_fl_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
         wheel_fr_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
         even = false;
     }
-    else {
+    else { // Set tire speed
         rotating_movement_fl_->RotationRate.Roll = vehicle_state_.fl_wheel_state.angular_velocity*RAD2DEG;
         rotating_movement_fr_->RotationRate.Roll = vehicle_state_.fr_wheel_state.angular_velocity*RAD2DEG;
         rotating_movement_rl_->RotationRate.Roll = vehicle_state_.rl_wheel_state.angular_velocity*RAD2DEG;
@@ -257,23 +251,23 @@ void ACustomCarPawn::updateHUDStrings()
 	FText speed_unit_label = FText::FromString(FString(AirSimSettings::singleton().speed_unit_label.c_str()));
     // float vel = FMath::Abs(GetVehicleMovement()->GetForwardSpeed() / 100); //cm/s -> m/s
     // float vel_rounded = FMath::FloorToInt(vel * 10 * speed_unit_factor) / 10.0f;
-     int32 Gear = 2;
+    // int32 Gear = 2;
 
-    // // Using FText because this is display text that should be localizable
-     last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(10.0f), speed_unit_label);
+    // Using FText because this is display text that should be localizable
+    // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(10.0f), speed_unit_label);
     
-     if (true)
-     {
-         last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
-     }
-     else
-     {
-         last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
-     }
+    // if (true)
+    // {
+    //    last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
+    // }
+    // else
+    // {
+    //    last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
+    // }
     
     
-     UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
-     UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
+     //UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
+     //UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
     // UAirBlueprintLib::LogMessage(TEXT("RPM: "), FText::AsNumber(GetVehicleMovement()->GetEngineRotationSpeed()).ToString(), LogDebugLevel::Informational);
 }
 
