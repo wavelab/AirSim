@@ -26,7 +26,7 @@ void MkzVsm::init() {
 
     this->time = 0.0;
     double t0 = 0.0;
-    this->dt = 0.002;
+    this->dt = 0.001;
     this->dt_multiplier = 10;
     double *ic = NULL;
     double *p = NULL;
@@ -34,7 +34,7 @@ void MkzVsm::init() {
     SolverSetup(t0, ic, input_array, p, output_array, dt, &solver);
 
     if (solver.err > 0) {
-        printf("MkzVsm::init(): %s\n", solver.buf);
+        printf("MkzVsm::init(): solver error: %s\n", solver.buf);
     }
 
 }
@@ -77,7 +77,7 @@ int MkzVsm::performSimulationStep() {
         SolverOutputs(output_array, &solver);
 
         if (solver.err > 0) {
-            printf("%s\n", solver.buf);
+            printf("MkzVsm::performSimulationStep(): solver error: %s\n", solver.buf);
             return 1;
         }
         this->time += this->dt;
