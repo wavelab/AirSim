@@ -138,10 +138,10 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     rotating_movement_rl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_rl_rotation"));
     rotating_movement_rr_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_rr_rotation"));
 
-    wheel_fl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fl"));
-    wheel_fr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fr"));
-    wheel_rl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rl"));
-    wheel_rr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rr"));
+    wheel_fl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_flMesh"));
+    wheel_fr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_frMesh"));
+    wheel_rl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rlMesh"));
+    wheel_rr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rrMesh"));
 
     setupInputBindings();
 }
