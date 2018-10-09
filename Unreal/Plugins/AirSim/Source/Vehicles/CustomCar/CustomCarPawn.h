@@ -109,13 +109,13 @@ private:
 
     UPROPERTY() URotatingMovementComponent* rotating_movement_fl_;
     UPROPERTY() URotatingMovementComponent* rotating_movement_fr_;
-    UPROPERTY() URotatingMovementComponent* rotating_movement_bl_;
-    UPROPERTY() URotatingMovementComponent* rotating_movement_br_;
+    UPROPERTY() URotatingMovementComponent* rotating_movement_rl_;
+    UPROPERTY() URotatingMovementComponent* rotating_movement_rr_;
 
     UPROPERTY() UStaticMeshComponent* wheel_fl_;
     UPROPERTY() UStaticMeshComponent* wheel_fr_;
-    UPROPERTY() UStaticMeshComponent* wheel_bl_;
-    UPROPERTY() UStaticMeshComponent* wheel_br_;
+    UPROPERTY() UStaticMeshComponent* wheel_rl_;
+    UPROPERTY() UStaticMeshComponent* wheel_rr_;
 
     UTextRenderComponent* speed_text_render_;
     UTextRenderComponent* gear_text_render_;

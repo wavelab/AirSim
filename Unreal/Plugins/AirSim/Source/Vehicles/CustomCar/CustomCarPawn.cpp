@@ -95,7 +95,8 @@ void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
     float steering = vehicle_input.steering_angle; 
     if (steering < -8.48f) steering = -8.48f;
     else if (steering > 8.48f) steering = 8.48f;
-    tire_angle_ = (steering/14.8f)*RAD2DEG;
+    tire_angle_ = (steering/14.8f)*RAD2DEG*-1;
+    UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
 }
 
 VehicleState ACustomCarPawn::getVehicleState()
@@ -140,13 +141,13 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
 
     rotating_movement_fl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_fl_rotation"));
     rotating_movement_fr_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_fr_rotation"));
-    rotating_movement_bl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_bl_rotation"));
-    rotating_movement_br_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_br_rotation"));
+    rotating_movement_rl_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_rl_rotation"));
+    rotating_movement_rr_ = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("wheel_rr_rotation"));
 
     wheel_fl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fl"));
     wheel_fr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_fr"));
-    wheel_bl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_bl"));
-    wheel_br_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_br"));
+    wheel_rl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rl"));
+    wheel_rr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rr"));
 
     setupInputBindings();
 }
@@ -237,13 +238,13 @@ void ACustomCarPawn::Tick(float Delta)
     else {
         rotating_movement_fl_->RotationRate.Roll = vehicle_state_.fl_wheel_state.angular_velocity*RAD2DEG;
         rotating_movement_fr_->RotationRate.Roll = vehicle_state_.fr_wheel_state.angular_velocity*RAD2DEG;
-        rotating_movement_bl_->RotationRate.Roll = vehicle_state_.rl_wheel_state.angular_velocity*RAD2DEG;
-        rotating_movement_br_->RotationRate.Roll = vehicle_state_.rr_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_rl_->RotationRate.Roll = vehicle_state_.rl_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_rr_->RotationRate.Roll = vehicle_state_.rr_wheel_state.angular_velocity*RAD2DEG;
 
         rotating_movement_fl_->SetUpdatedComponent(wheel_fl_);
         rotating_movement_fr_->SetUpdatedComponent(wheel_fr_);
-        rotating_movement_bl_->SetUpdatedComponent(wheel_bl_);
-        rotating_movement_br_->SetUpdatedComponent(wheel_br_);
+        rotating_movement_rl_->SetUpdatedComponent(wheel_rl_);
+        rotating_movement_rr_->SetUpdatedComponent(wheel_rr_);
         even = true;
     }
 }
@@ -256,23 +257,23 @@ void ACustomCarPawn::updateHUDStrings()
 	FText speed_unit_label = FText::FromString(FString(AirSimSettings::singleton().speed_unit_label.c_str()));
     // float vel = FMath::Abs(GetVehicleMovement()->GetForwardSpeed() / 100); //cm/s -> m/s
     // float vel_rounded = FMath::FloorToInt(vel * 10 * speed_unit_factor) / 10.0f;
-    // int32 Gear = GetVehicleMovement()->GetCurrentGear();
+     int32 Gear = 2;
 
     // // Using FText because this is display text that should be localizable
-    // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(vel_rounded), speed_unit_label);
-    //
-    // if (GetVehicleMovement()->GetCurrentGear() < 0)
-    // {
-    //     last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
-    // }
-    // else
-    // {
-    //     last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
-    // }
-    //
-    //
-    // UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
-    // UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
+     last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(10.0f), speed_unit_label);
+    
+     if (true)
+     {
+         last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
+     }
+     else
+     {
+         last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
+     }
+    
+    
+     UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
+     UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
     // UAirBlueprintLib::LogMessage(TEXT("RPM: "), FText::AsNumber(GetVehicleMovement()->GetEngineRotationSpeed()).ToString(), LogDebugLevel::Informational);
 }
 
