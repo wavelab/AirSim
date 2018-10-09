@@ -254,7 +254,7 @@ void ACustomCarPawn::updateHUDStrings()
     // int32 Gear = GetVehicleMovement()->GetCurrentGear();
 
     // Using FText because this is display text that should be localizable
-    // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(10.0f), speed_unit_label);
+    // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(vel_rounded), speed_unit_label);
     
     // if (GetVehicleMovement()->GetCurrentGear() < 0)
     // {
