@@ -251,12 +251,12 @@ void ACustomCarPawn::updateHUDStrings()
 	FText speed_unit_label = FText::FromString(FString(AirSimSettings::singleton().speed_unit_label.c_str()));
     // float vel = FMath::Abs(GetVehicleMovement()->GetForwardSpeed() / 100); //cm/s -> m/s
     // float vel_rounded = FMath::FloorToInt(vel * 10 * speed_unit_factor) / 10.0f;
-    // int32 Gear = 2;
+    // int32 Gear = GetVehicleMovement()->GetCurrentGear();
 
     // Using FText because this is display text that should be localizable
     // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(10.0f), speed_unit_label);
     
-    // if (true)
+    // if (GetVehicleMovement()->GetCurrentGear() < 0)
     // {
     //    last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
     // }
