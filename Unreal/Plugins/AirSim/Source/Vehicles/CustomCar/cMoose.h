@@ -1,7 +1,7 @@
 #ifndef C_MOOSE_H
 #define C_MOOSE_H
 
-// BEGIN: Copied from cFullModel_Sept26:413..437
+// BEGIN: Copied from cFullModel_Oct09:413..437
 
 /* Fixed parameters */
 #define NDIFF 64
@@ -29,6 +29,6 @@ typedef struct {
 	char *buf;		/* Error message */
 } SolverStruct;
 
-// BEGIN: Copied from cFullModel_Sept26:413..437
+// END: Copied from cFullModel_Oct09:413..437
 
 #endif  // C_MOOSE_H

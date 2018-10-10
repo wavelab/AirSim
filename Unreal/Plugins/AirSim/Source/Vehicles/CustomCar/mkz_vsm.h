@@ -5,10 +5,10 @@
 
 // These consts need to be taken from the generated code and may change if the
 // model is changed
-const int InputSize =  NINP;
-const int OutputSize = NOUT;
+constexpr int InputSize =  NINP;
+constexpr int OutputSize = NOUT;
 // workspace = 7 + 2 * NEQ + NPAR + NDFA + NEVT
-const int FloatWorkspaceSize = 7+2*NEQ+NPAR+NDFA+NEVT;
+constexpr int FloatWorkspaceSize = 7+2*NEQ+NPAR+NDFA+NEVT;
 
 struct Vector3 {
     float x, y, z;

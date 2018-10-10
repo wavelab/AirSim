@@ -1,16 +1,39 @@
 /**************************************************************************
 This file is created from cFullModel_Oct09.c and modified to remove errors
 Summary of edits:
+
 * lines 414-438 have been moved to cMoose.h
+
+* add #include "cMoose.h"
+
 * "char *str=malloc..." ->
   "char *str=(char*)malloc..."
+
 * "static void SolverError(SolverStruct *S, int term, char *errmsg)" ->
   "static void SolverError(SolverStruct *S, int term, char const *errmsg)"
+
 * "S.w=malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));" ->
   "S.w=(double*)malloc((7+2*NEQ+NPAR+NDFA+NEVT)*sizeof(double));"
+
 * "int" ->
   "long"
-* add #include "cMoose.h"
+
+* remove function inpfn 4704-4710
+
+static void inpfn(double T, double *U)
+{
+	UNUSED(T);
+	U[0] = 0.;
+	U[1] = 0.;
+	U[2] = 0.;
+}
+
+* remove calls to the function inpfn from SolverSetup and SolverUpdate
+
+* remove the definition of EVTHYST
+
+  #define EVTHYST 1.000000e-07
+
 *************************************************************************/
 #include "cMoose.h"
 /***************************************************
@@ -409,7 +432,6 @@ long icvis[64] = {
 #define INITWEIGHT 2.000000e+01
 #define EVTITER 10
 #define EVTPROJ 1
-#define EVTHYST 1.000000e-07
 #define INCONTOL 1e200
 
 /* Wordsize integer definition */
@@ -4693,14 +4715,6 @@ static long cpr(double T, double *Y)
 	return(k);
 }
 
-static void inpfn(double T, double *U)
-{
-	UNUSED(T);
-	U[0] = 0.;
-	U[1] = 0.;
-	U[2] = 0.;
-}
-
 /*
 	Projection: Use Rp,Jp constraint residual and Jacobian functions to
 	project the input solution x back onto the constraint manfold.
@@ -5156,7 +5170,6 @@ static void SolverUpdate(double *u, long internal, SolverStruct *S)
 {
 	long i;
 
-	inpfn(S->w[0],u);
 	for(i=0;i<NINP;i++) S->w[i+NDIFF+NIX1-NINP+1]=u[i];
 	numdiffinp(S->w,0);
 	fp(NEQ,S->w[0],&S->w[1],&S->w[NEQ+NPAR+1]);
@@ -5896,7 +5909,6 @@ static void SolverSetup(double t0, double *ic, double *u, double *p, double *y, 
 
 	for(i=0;i<NDIFF;i++) S->w[i+NEQ+NPAR+1]=0.0;
 
-	inpfn(S->w[0],u);
 	for(i=0;i<NINP;i++) S->w[i+NDIFF+NIX1-NINP+1]=u[i];
 	numdiffinp(S->w,1);
 	numdiffinp(S->w,1);
