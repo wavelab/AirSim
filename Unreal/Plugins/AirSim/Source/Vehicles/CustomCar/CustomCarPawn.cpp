@@ -87,8 +87,6 @@ void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
 {
     vehicle_model_.setVehicleInput(vehicle_input);
     float steering = FMath::Clamp((float)vehicle_input.steering_angle, -8.48f, 8.48f); 
-    //if (steering < -8.48f) steering = -8.48f;
-    //else if (steering > 8.48f) steering = 8.48f;
     tire_angle_ = (steering/14.8f)*RAD2DEG*-1;
     UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
 }
