@@ -87,6 +87,7 @@ int MkzVsm::performSimulationStep() {
 VehicleState MkzVsm::getVehicleState() {
     Vector3 position;
     Vector3 orientation;
+    Matrix3x3 rotation;
     Vector3 velocity;
     Vector3 angular_velocity;
     VehicleState vehicle_state;
@@ -133,6 +134,16 @@ VehicleState MkzVsm::getVehicleState() {
     orientation.y = output_array[4];  // Angle of the Rear Axle about the Y-axis (Pitch Angle)
     orientation.z = output_array[5];  // Angle of the Rear Axle about the Z-axis (Yaw Angle)
     vehicle_state.orientation = orientation;
+
+    rotation.r1c1 = output_array[12];  // Base Link Roation Matrix [1 1] [Row Column]
+    rotation.r2c1 = output_array[13];  // Base Link Roation Matrix [2 1]
+    rotation.r3c1 = output_array[14];  // Base Link Roation Matrix [3 1]
+    rotation.r1c2 = output_array[15];  // Base Link Roation Matrix [1 2] [Row Column]
+    rotation.r2c2 = output_array[16];  // Base Link Roation Matrix [2 2]
+    rotation.r3c2 = output_array[17];  // Base Link Roation Matrix [3 2]
+    rotation.r1c3 = output_array[18];  // Base Link Roation Matrix [1 3]
+    rotation.r2c3 = output_array[19];  // Base Link Roation Matrix [2 3]
+    rotation.r3c3 = output_array[20];  // Base Link Roation Matrix [3 3]
 
     velocity.x = output_array[67];    // Longitudinal Velocity at Rear Axle
     velocity.y = output_array[68];    // Lateral Velocity at Rear Axle

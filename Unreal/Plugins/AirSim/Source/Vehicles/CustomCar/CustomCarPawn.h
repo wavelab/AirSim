@@ -16,6 +16,7 @@
 #include "PawnEvents.h"
 #include "PIPCamera.h"
 #include "mkz_vsm.h"
+#include <unreal_ros_node_wrapper/unreal_ros_node_wrapper.hpp>
 
 #include "CustomCarPawn.generated.h"
 
@@ -115,4 +116,6 @@ private:
     FColor	last_gear_display_reverse_color_;
     MkzVsm vehicle_model_;
     VehicleState vehicle_state_;
+
+    TUniquePtr<unreal_ros_node_wrapper::UnrealRosNodeWrapper> ros_node_wrapper;
 };

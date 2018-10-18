@@ -127,6 +127,15 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     camera_back_center_->AttachToComponent(camera_back_center_base_, FAttachmentTransformRules::KeepRelativeTransform);
 
     setupInputBindings();
+
+    this->ros_node_wrapper.Reset(
+        unreal_ros_node_wrapper::UnrealRosNodeWrapper::create());
+
+    if (this->ros_node_wrapper->start()) {
+      UE_LOG(LogTemp, Display, TEXT("unreal_ros_node_wrapper initialized"));
+    } else {
+      UE_LOG(LogTemp, Warning, TEXT("unreal_ros_node_wrapper not initialized"));
+    }
 }
 
 const common_utils::UniqueValueMap<std::string, APIPCamera*> ACustomCarPawn::getCameras() const
@@ -172,6 +181,25 @@ VehiclePose ACustomCarPawn::updateVehicleModel()
 
     vehicle_model_.performSimulationStep();
     vehicle_state_ = vehicle_model_.getVehicleState();
+
+    const double position[3] = {vehicle_state_.position.x,
+                                vehicle_state_.position.y,
+                                vehicle_state_.position.z};
+    const double rotation_matrix[9] = {vehicle_state_.rotation.r1c1,
+                                vehicle_state_.rotation.r2c1,
+                                vehicle_state_.rotation.r3c1,
+                                vehicle_state_.rotation.r1c2,
+                                vehicle_state_.rotation.r2c2,
+                                vehicle_state_.rotation.r3c2,
+                                vehicle_state_.rotation.r1c3,
+                                vehicle_state_.rotation.r2c3,
+                                vehicle_state_.rotation.r3c3};
+
+    this->ros_node_wrapper->broadcast_T_sim_ENU_sim_base_link(position, rotation_matrix);
+    this->ros_node_wrapper->publish_wheel_speeds(vehicle_state_.fl_wheel_state.angular_velocity,
+                                                 vehicle_state_.fr_wheel_state.angular_velocity,
+                                                 vehicle_state_.rl_wheel_state.angular_velocity,
+                                                 vehicle_state_.rr_wheel_state.angular_velocity);
 
     FVector new_location = FVector(vehicle_state_.position.x * 100, // convert output from m to cm
                                    vehicle_state_.position.y * 100, // convert output from m to cm

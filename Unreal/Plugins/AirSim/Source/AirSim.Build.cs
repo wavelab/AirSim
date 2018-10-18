@@ -89,6 +89,12 @@ public class AirSim : ModuleRules
         AddOSLibDependencies(Target);
 
         SetupCompileMode(CompileMode.CppCompileWithRpc, Target);
+
+        PublicSystemIncludePaths.Add(
+           "../../../../src/ros_unreal/unreal_ros_node_wrapper/include/"
+        );
+        PublicAdditionalLibraries.AddRange(
+            new string[]{ "../../../../devel/lib/libunreal_ros_node_wrapper.so" });
     }
 
     private void AddOSLibDependencies(ReadOnlyTargetRules Target)

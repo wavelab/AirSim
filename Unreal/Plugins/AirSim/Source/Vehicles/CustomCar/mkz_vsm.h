@@ -13,6 +13,10 @@ constexpr int FloatWorkspaceSize = 7+2*NEQ+NPAR+NDFA+NEVT;
 struct Vector3 {
     float x, y, z;
 };
+// Column major [row column]
+struct Matrix3x3 {
+    float r1c1, r2c1, r3c1, r1c2, r2c2, r3c2, r1c3, r2c3, r3c3;
+};
 
 struct ValidRange {
     double min;
@@ -38,6 +42,7 @@ struct VehicleState {
     double time;
     Vector3 position;
     Vector3 orientation;
+    Matrix3x3 rotation;
     Vector3 velocity;
     Vector3 angular_velocity;
 
