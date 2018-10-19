@@ -130,6 +130,10 @@ class VehicleClient:
         return EnvironmentState.from_msgpack(env_state)
     simGetGroundTruthEnvironment.__annotations__ = {'return': EnvironmentState}
 
+    # lidar APIs
+    def getLidarData(self, lidar_name = '', vehicle_name = ''):
+        return LidarData.from_msgpack(self.client.call('getLidarData', lidar_name, vehicle_name))
+
     #----------- APIs to control ACharacter in scene ----------/
     def simCharSetFaceExpression(self, expression_name, value, character_name = ""):
         self.client.call('simCharSetFaceExpression', expression_name, value, character_name)
@@ -157,6 +161,12 @@ class VehicleClient:
         self.client.call('simCharResetBonePose', bone_name, character_name)
     def simCharSetFacePreset(self, preset_name, value, character_name = ""):
         self.client.call('simCharSetFacePreset', preset_name, value, character_name)
+    def simCharSetFacePresets(self, presets, character_name = ""):
+        self.client.call('simSetFacePresets', presets, character_name)
+    def simCharSetBonePoses(self, poses, character_name = ""):
+        self.client.call('simSetBonePoses', poses, character_name)
+    def simCharGetBonePoses(self, bone_names, character_name = ""):
+        return self.client.call('simGetBonePoses', bone_names, character_name)
 
     def cancelLastTask():
         self.client.call('cancelLastTask')

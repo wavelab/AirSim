@@ -28,8 +28,11 @@
 #include <limits.h> // needed for CHAR_BIT used below
 #endif
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
-#include <cmath>
+#endif
+#include <math.h>
+//#include <cmath>
 
 #ifndef M_PIf
 #define M_PIf static_cast<float>(3.1415926535897932384626433832795028841972)
@@ -124,16 +127,23 @@ public:
     }
 
     static bool startsWith(const string& s, const string& prefix) {
-        return s.size() <= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
+        return s.size() >= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
     }
 
     template <template<class, class, class...> class TContainer, typename TKey, typename TVal, typename... Args>
-    static const TVal& findOrDefault(const TContainer<TKey, TVal, Args...>& m, TKey const& key, const TVal& default_val = TVal())
+    static const TVal& findOrDefault(const TContainer<TKey, TVal, Args...>& m, TKey const& key, const TVal& default_val)
     {
         typename TContainer<TKey, TVal, Args...>::const_iterator it = m.find(key);
         if (it == m.end())
             return default_val;
         return it->second;
+    }
+
+    template <template<class, class, class...> class TContainer, typename TKey, typename TVal, typename... Args>
+    static const TVal& findOrDefault(const TContainer<TKey, TVal, Args...>& m, TKey const& key)
+    {
+        static TVal default_val;
+        return findOrDefault(m, key, default_val);
     }
 
     static Logger* getSetLogger(Logger* logger = nullptr)
@@ -583,7 +593,7 @@ public:
     //implements relative method - do not use for comparing with zero
     //use this most of the time, tolerance needs to be meaningful in your context
     template<typename TReal>
-    static bool isApproximatelyEqual(TReal a, TReal b, TReal tolerance = std::numeric_limits<TReal>::epsilon())
+    static bool isApproximatelyEqual(TReal a, TReal b, TReal tolerance = epsilon<TReal>())
     {
         TReal diff = std::fabs(a - b);
         if (diff <= tolerance)
@@ -595,10 +605,16 @@ public:
         return false;
     }
 
+    template<typename TReal>
+    static constexpr TReal epsilon()
+    {
+        return std::numeric_limits<TReal>::epsilon();
+    }
+
     //supply tolerance that is meaningful in your context
     //for example, default tolerance may not work if you are comparing double with float
     template<typename TReal>
-    static bool isApproximatelyZero(TReal a, TReal tolerance = std::numeric_limits<TReal>::epsilon())
+    static bool isApproximatelyZero(TReal a, TReal tolerance = epsilon<TReal>())
     {
         if (std::fabs(a) <= tolerance)
             return true;
@@ -609,7 +625,7 @@ public:
     //use this when you want to be on safe side
     //for example, don't start rover unless signal is above 1
     template<typename TReal>
-    static bool isDefinitelyLessThan(TReal a, TReal b, TReal tolerance = std::numeric_limits<TReal>::epsilon())
+    static bool isDefinitelyLessThan(TReal a, TReal b, TReal tolerance = epsilon<TReal>())
     {
         TReal diff = a - b;
         if (diff < tolerance)
@@ -621,7 +637,7 @@ public:
         return false;
     }
     template<typename TReal>
-    static bool isDefinitelyGreaterThan(TReal a, TReal b, TReal tolerance = std::numeric_limits<TReal>::epsilon())
+    static bool isDefinitelyGreaterThan(TReal a, TReal b, TReal tolerance = epsilon<TReal>())
     {
         TReal diff = a - b;
         if (diff > tolerance)

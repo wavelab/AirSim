@@ -159,6 +159,11 @@ msr::airlib::GeoPoint RpcLibClientBase::getHomeGeoPoint(const std::string& vehic
     return pimpl_->client.call("getHomeGeoPoint", vehicle_name).as<RpcLibAdapatorsBase::GeoPoint>().to();
 }
 
+msr::airlib::LidarData RpcLibClientBase::getLidarData(const std::string& lidar_name, const std::string& vehicle_name) const
+{
+    return pimpl_->client.call("getLidarData", lidar_name, vehicle_name).as<RpcLibAdapatorsBase::LidarData>().to();
+}
+
 bool RpcLibClientBase::simSetSegmentationObjectID(const std::string& mesh_name, int object_id, bool is_name_regex)
 {
     return pimpl_->client.call("simSetSegmentationObjectID", mesh_name, object_id, is_name_regex).as<bool>();
@@ -341,6 +346,30 @@ void RpcLibClientBase::simCharResetBonePose(const std::string& bone_name, const 
 void RpcLibClientBase::simCharSetFacePreset(const std::string& preset_name, float value, const std::string& character_name)
 {
     pimpl_->client.call("simCharSetFacePreset", preset_name, value, character_name);
+}
+void RpcLibClientBase::simSetFacePresets(const std::unordered_map<std::string, float>& presets, const std::string& character_name)
+{
+    pimpl_->client.call("simSetFacePresets", presets, character_name);
+}
+void RpcLibClientBase::simSetBonePoses(const std::unordered_map<std::string, msr::airlib::Pose>& poses, const std::string& character_name)
+{
+    std::unordered_map<std::string, RpcLibAdapatorsBase::Pose> r;
+    for (const auto& p : poses)
+        r[p.first] = RpcLibAdapatorsBase::Pose(p.second);
+
+    pimpl_->client.call("simSetBonePoses", r, character_name);
+}
+std::unordered_map<std::string, msr::airlib::Pose> RpcLibClientBase::simGetBonePoses(const std::vector<std::string>& bone_names, const std::string& character_name) const
+{
+    std::unordered_map<std::string, RpcLibAdapatorsBase::Pose> t =
+        pimpl_->client.call("simGetBonePoses", bone_names, character_name)
+            .as<std::unordered_map<std::string, RpcLibAdapatorsBase::Pose>>();
+
+    std::unordered_map<std::string, msr::airlib::Pose> r;
+    for (const auto& p : t)
+        r[p.first] = p.second.to();
+
+    return r;
 }
 
 

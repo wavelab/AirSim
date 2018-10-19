@@ -53,6 +53,9 @@ public:
     void enableApiControl(bool is_enabled, const std::string& vehicle_name = "");
 
     msr::airlib::GeoPoint getHomeGeoPoint(const std::string& vehicle_name = "") const;
+
+    msr::airlib::LidarData getLidarData(const std::string& lidar_name = "", const std::string& vehicle_name = "") const;
+
     Pose simGetVehiclePose(const std::string& vehicle_name = "") const;
     void simSetVehiclePose(const Pose& pose, bool ignore_collision, const std::string& vehicle_name = "");
 
@@ -81,6 +84,9 @@ public:
     msr::airlib::Pose simCharGetBonePose(const std::string& bone_name, const std::string& character_name = "") const;
     void simCharResetBonePose(const std::string& bone_name, const std::string& character_name = "");
     void simCharSetFacePreset(const std::string& preset_name, float value, const std::string& character_name = "");
+    void simSetFacePresets(const std::unordered_map<std::string, float>& presets, const std::string& character_name = "");
+    void simSetBonePoses(const std::unordered_map<std::string, msr::airlib::Pose>& poses, const std::string& character_name = "");
+    std::unordered_map<std::string, msr::airlib::Pose> simGetBonePoses(const std::vector<std::string>& bone_names, const std::string& character_name = "") const;
 
 protected:
     void* getClient();

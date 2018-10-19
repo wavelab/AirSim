@@ -38,7 +38,7 @@ ACarPawn::ACarPawn()
     setupVehicleMovementComponent();
 
 
-    // Create In-Car camera component 
+    // Create In-Car camera component
     camera_front_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_front_center_base_"));
     camera_front_center_base_->SetRelativeLocation(FVector(200, 0, 100)); //center
     camera_front_center_base_->SetupAttachment(GetMesh());
@@ -114,7 +114,7 @@ void ACarPawn::setupVehicleMovementComponent()
     movement->MaxNormalizedTireLoad = 2.0f;
     movement->MaxNormalizedTireLoadFiltered = 2.0f;
 
-    // Engine 
+    // Engine
     // Torque setup
     movement->EngineSetup.MaxRPM = 5700.0f;
     movement->EngineSetup.TorqueCurve.GetRichCurve()->Reset();
@@ -122,13 +122,13 @@ void ACarPawn::setupVehicleMovementComponent()
     movement->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(1890.0f, 500.0f);
     movement->EngineSetup.TorqueCurve.GetRichCurve()->AddKey(5730.0f, 400.0f);
 
-    // Adjust the steering 
+    // Adjust the steering
     movement->SteeringCurve.GetRichCurve()->Reset();
     movement->SteeringCurve.GetRichCurve()->AddKey(0.0f, 1.0f);
     movement->SteeringCurve.GetRichCurve()->AddKey(40.0f, 0.7f);
     movement->SteeringCurve.GetRichCurve()->AddKey(120.0f, 0.6f);
 
-    // Transmission	
+    // Transmission
     // We want 4wd
     movement->DifferentialSetup.DifferentialType = EVehicleDifferential4W::LimitedSlip_4W;
 
@@ -276,7 +276,7 @@ void ACarPawn::updateHUDStrings()
     float vel = FMath::Abs(GetVehicleMovement()->GetForwardSpeed() / 100); //cm/s -> m/s
     float vel_rounded = FMath::FloorToInt(vel * 10 * speed_unit_factor) / 10.0f;
     int32 Gear = GetVehicleMovement()->GetCurrentGear();
-	
+
     // Using FText because this is display text that should be localizable
     last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(vel_rounded), speed_unit_label);
 
