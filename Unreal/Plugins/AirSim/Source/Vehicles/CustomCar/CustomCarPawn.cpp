@@ -222,9 +222,10 @@ void ACustomCarPawn::Tick(float Delta)
     pawn_events_.getPawnTickSignal().emit(Delta);
 
     if (even) { // Set tire angle
-        FRotator rot(0,tire_angle_,0);
-        wheel_fl_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
-        wheel_fr_->SetRelativeRotation(rot, false, NULL, ETeleportType::None);
+        FRotator rot_left(0,tire_angle_,0);
+        FRotator rot_right(0,180+tire_angle_, 0);
+        wheel_fl_->SetRelativeRotation(rot_left, false, NULL, ETeleportType::None);
+        wheel_fr_->SetRelativeRotation(rot_right, false, NULL, ETeleportType::None);
         even = false;
     }
     else { // Set tire speed
