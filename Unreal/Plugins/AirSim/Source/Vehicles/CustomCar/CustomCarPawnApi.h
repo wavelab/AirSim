@@ -9,7 +9,8 @@ class CustomCarPawnApi : public msr::airlib::CarApiBase {
 public:
     typedef msr::airlib::ImageCaptureBase ImageCaptureBase;
 
-    CustomCarPawnApi(ACustomCarPawn* pawn, const msr::airlib::Kinematics::State* pawn_kinematics, const msr::airlib::GeoPoint& home_geopoint);
+    CustomCarPawnApi(ACustomCarPawn* pawn, const msr::airlib::Kinematics::State* pawn_kinematics, const msr::airlib::GeoPoint& home_geopoint,
+        std::shared_ptr<msr::airlib::SensorFactory> sensor_factory, const msr::airlib::Kinematics::State& state, const msr::airlib::Environment& environment);
 
     virtual void setCarControls(const CarApiBase::CarControls& controls) override;
 
