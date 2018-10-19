@@ -230,9 +230,9 @@ void ACustomCarPawn::Tick(float Delta)
     }
     else { // Set tire speed
         rotating_movement_fl_->RotationRate.Roll = vehicle_state_.fl_wheel_state.angular_velocity*RAD2DEG;
-        rotating_movement_fr_->RotationRate.Roll = vehicle_state_.fr_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_fr_->RotationRate.Roll = vehicle_state_.fr_wheel_state.angular_velocity*RAD2DEG*-1;
         rotating_movement_rl_->RotationRate.Roll = vehicle_state_.rl_wheel_state.angular_velocity*RAD2DEG;
-        rotating_movement_rr_->RotationRate.Roll = vehicle_state_.rr_wheel_state.angular_velocity*RAD2DEG;
+        rotating_movement_rr_->RotationRate.Roll = vehicle_state_.rr_wheel_state.angular_velocity*RAD2DEG*-1;
 
         rotating_movement_fl_->SetUpdatedComponent(wheel_fl_);
         rotating_movement_fr_->SetUpdatedComponent(wheel_fr_);
