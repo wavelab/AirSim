@@ -25,7 +25,7 @@ void MkzVsm::init() {
 
     this->time = 0.0;
     double t0 = 0.0;
-    this->dt = 0.001;
+    this->dt = 0.002;
     this->dt_multiplier = 10;
     double *ic = NULL;
     double *p = NULL;
@@ -138,12 +138,13 @@ VehicleState MkzVsm::getVehicleState() {
     rotation.r1c1 = output_array[12];  // Base Link Roation Matrix [1 1] [Row Column]
     rotation.r2c1 = output_array[13];  // Base Link Roation Matrix [2 1]
     rotation.r3c1 = output_array[14];  // Base Link Roation Matrix [3 1]
-    rotation.r1c2 = output_array[15];  // Base Link Roation Matrix [1 2] [Row Column]
+    rotation.r1c2 = output_array[15];  // Base Link Roation Matrix [1 2] 
     rotation.r2c2 = output_array[16];  // Base Link Roation Matrix [2 2]
     rotation.r3c2 = output_array[17];  // Base Link Roation Matrix [3 2]
     rotation.r1c3 = output_array[18];  // Base Link Roation Matrix [1 3]
     rotation.r2c3 = output_array[19];  // Base Link Roation Matrix [2 3]
     rotation.r3c3 = output_array[20];  // Base Link Roation Matrix [3 3]
+    vehicle_state.rotation = rotation;
 
     velocity.x = output_array[67];    // Longitudinal Velocity at Rear Axle
     velocity.y = output_array[68];    // Lateral Velocity at Rear Axle

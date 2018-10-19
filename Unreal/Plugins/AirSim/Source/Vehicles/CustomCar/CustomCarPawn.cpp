@@ -195,7 +195,7 @@ VehiclePose ACustomCarPawn::updateVehicleModel()
                                 vehicle_state_.rotation.r2c3,
                                 vehicle_state_.rotation.r3c3};
 
-    this->ros_node_wrapper->broadcast_T_sim_ENU_sim_base_link(position, rotation_matrix);
+    this->ros_node_wrapper->broadcast_T_sim_NED_sim_base_link(position, rotation_matrix);
     this->ros_node_wrapper->publish_wheel_speeds(vehicle_state_.fl_wheel_state.angular_velocity,
                                                  vehicle_state_.fr_wheel_state.angular_velocity,
                                                  vehicle_state_.rl_wheel_state.angular_velocity,
