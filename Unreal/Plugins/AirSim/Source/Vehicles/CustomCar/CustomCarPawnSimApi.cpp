@@ -20,7 +20,9 @@ CustomCarPawnSimApi::CustomCarPawnSimApi(const Params& params,
 void CustomCarPawnSimApi::createVehicleApi(ACustomCarPawn* pawn, const msr::airlib::GeoPoint& home_geopoint)
 {
     //create vehicle params
-    vehicle_api_ = std::unique_ptr<CarApiBase>(new CustomCarPawnApi(pawn, getPawnKinematics(), home_geopoint));
+    std::shared_ptr<UnrealSensorFactory> sensor_factory = std::make_shared<UnrealSensorFactory>(getPawn(), &getNedTransform());
+    vehicle_api_ = std::unique_ptr<CarApiBase>(new CustomCarPawnApi(pawn, getPawnKinematics(), home_geopoint,
+      sensor_factory, (*getGroundTruthKinematics()), (*getGroundTruthEnvironment())));
 }
 
 std::string CustomCarPawnSimApi::getRecordFileLine(bool is_header_line) const
