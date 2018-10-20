@@ -85,8 +85,12 @@ void ACustomCarPawn::setupVehicleMovementComponent()
 
 void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
 {
+    // vehicle_input.throttle_percent = 0;
+    // vehicle_input.brake_position = 0.5;
+    // vehicle_input.steering_angle = 0;
+
     vehicle_model_.setVehicleInput(vehicle_input);
-    float steering = FMath::Clamp((float)vehicle_input.steering_angle, -8.48f, 8.48f); 
+    float steering = FMath::Clamp((float)vehicle_input.steering_angle, -8.48f, 8.48f);
     tire_angle_ = (steering/14.8f)*RAD2DEG*-1;
     UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
 }
@@ -210,7 +214,7 @@ VehiclePose ACustomCarPawn::updateVehicleModel()
                                 vehicle_state_.rotation.r2c3,
                                 vehicle_state_.rotation.r3c3};
 
-    this->ros_node_wrapper->broadcast_T_sim_NED_sim_base_link(position, rotation_matrix);
+    this->ros_node_wrapper->broadcast_T_sim_ENU_sim_body(position, rotation_matrix);
     this->ros_node_wrapper->publish_wheel_speeds(vehicle_state_.fl_wheel_state.angular_velocity,
                                                  vehicle_state_.fr_wheel_state.angular_velocity,
                                                  vehicle_state_.rl_wheel_state.angular_velocity,
@@ -282,7 +286,7 @@ void ACustomCarPawn::updateHUDStrings()
 
     // Using FText because this is display text that should be localizable
     // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(vel_rounded), speed_unit_label);
-    
+
     // if (GetVehicleMovement()->GetCurrentGear() < 0)
     // {
     //    last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
@@ -291,8 +295,8 @@ void ACustomCarPawn::updateHUDStrings()
     // {
     //    last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
     // }
-    
-    
+
+
      //UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
      //UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
     // UAirBlueprintLib::LogMessage(TEXT("RPM: "), FText::AsNumber(GetVehicleMovement()->GetEngineRotationSpeed()).ToString(), LogDebugLevel::Informational);

@@ -138,7 +138,7 @@ VehicleState MkzVsm::getVehicleState() {
     rotation.r1c1 = output_array[12];  // Base Link Roation Matrix [1 1] [Row Column]
     rotation.r2c1 = output_array[13];  // Base Link Roation Matrix [2 1]
     rotation.r3c1 = output_array[14];  // Base Link Roation Matrix [3 1]
-    rotation.r1c2 = output_array[15];  // Base Link Roation Matrix [1 2] 
+    rotation.r1c2 = output_array[15];  // Base Link Roation Matrix [1 2]
     rotation.r2c2 = output_array[16];  // Base Link Roation Matrix [2 2]
     rotation.r3c2 = output_array[17];  // Base Link Roation Matrix [3 2]
     rotation.r1c3 = output_array[18];  // Base Link Roation Matrix [1 3]
@@ -158,13 +158,13 @@ VehicleState MkzVsm::getVehicleState() {
 
     // Wheel states
     fl_ws.angular_velocity = output_array[39];  // Angular Velocity of the Front Left Wheel
-    vehicle_state.fl_wheel_state = fl_ws;
+    vehicle_state.fl_wheel_state = fl_ws*0.1;
     fr_ws.angular_velocity = output_array[46];  // Angular Velocity of the Front Right Wheel
-    vehicle_state.fr_wheel_state = fr_ws;
+    vehicle_state.fr_wheel_state = fr_ws*0.1;
     rl_ws.angular_velocity = output_array[59];  // Angular Velocity of the Rear Left Wheel
-    vehicle_state.rl_wheel_state = rl_ws;
+    vehicle_state.rl_wheel_state = rl_ws*0.1;
     rr_ws.angular_velocity = output_array[66];  // Angular Velocity of the Rear Right Wheel
-    vehicle_state.rr_wheel_state = rr_ws;
+    vehicle_state.rr_wheel_state = rr_ws*0.1;
 
     vehicle_state.time = this->time;
 
