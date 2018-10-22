@@ -157,14 +157,14 @@ VehicleState MkzVsm::getVehicleState() {
     vehicle_state.angular_velocity = angular_velocity;
 
     // Wheel states
-    fl_ws.angular_velocity = output_array[39];  // Angular Velocity of the Front Left Wheel
-    vehicle_state.fl_wheel_state = fl_ws*0.1;
-    fr_ws.angular_velocity = output_array[46];  // Angular Velocity of the Front Right Wheel
-    vehicle_state.fr_wheel_state = fr_ws*0.1;
-    rl_ws.angular_velocity = output_array[59];  // Angular Velocity of the Rear Left Wheel
-    vehicle_state.rl_wheel_state = rl_ws*0.1;
-    rr_ws.angular_velocity = output_array[66];  // Angular Velocity of the Rear Right Wheel
-    vehicle_state.rr_wheel_state = rr_ws*0.1;
+    fl_ws.angular_velocity = output_array[39] * 0.5;  // Angular Velocity of the Front Left Wheel
+    vehicle_state.fl_wheel_state = fl_ws;
+    fr_ws.angular_velocity = output_array[46] * 0.5;  // Angular Velocity of the Front Right Wheel
+    vehicle_state.fr_wheel_state = fr_ws;
+    rl_ws.angular_velocity = output_array[59] * 0.5;  // Angular Velocity of the Rear Left Wheel
+    vehicle_state.rl_wheel_state = rl_ws;
+    rr_ws.angular_velocity = output_array[66] * 0.5;  // Angular Velocity of the Rear Right Wheel
+    vehicle_state.rr_wheel_state = rr_ws;
 
     vehicle_state.time = this->time;
 
