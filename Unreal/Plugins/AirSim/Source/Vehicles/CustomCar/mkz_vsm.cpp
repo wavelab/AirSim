@@ -165,10 +165,10 @@ VehicleState MkzVsm::getVehicleState() {
         rr_ws.angular_velocity = output_array[66];  // Angular Velocity of the Rear Right Wheel
     }
     else {
-        const double avg_wheel_speed = velocity.x / this->wheel_radius
-        const double linear_speed_difference = angular_velocity.z * this->wheelbase / 2
-        const double left_wheel_speed = (car_state.speed - linear_speed_difference) / this->wheel_radius
-        const double right_wheel_speed = (car_state.speed + linear_speed_difference) / this->wheel_radius
+        const double avg_wheel_speed = velocity.x / wheel_radius;
+        const double linear_speed_difference = angular_velocity.z * wheelbase / 2;
+        const double left_wheel_speed = (velocity.x - linear_speed_difference) / wheel_radius;
+        const double right_wheel_speed = (velocity.x + linear_speed_difference) / wheel_radius;
 
         fl_ws.angular_velocity = avg_wheel_speed;
         fr_ws.angular_velocity = avg_wheel_speed;

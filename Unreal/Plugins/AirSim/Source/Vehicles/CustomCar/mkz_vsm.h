@@ -10,8 +10,8 @@ constexpr int OutputSize = NOUT;
 // workspace = 7 + 2 * NEQ + NPAR + NDFA + NEVT
 constexpr int FloatWorkspaceSize = 7+2*NEQ+NPAR+NDFA+NEVT;
 
-const double wheel_radius = 0.3675;
-const double wheelbase = 2.994;
+constexpr double wheel_radius{0.3675};
+constexpr double wheelbase{2.994};
 
 struct Vector3 {
     float x, y, z;
