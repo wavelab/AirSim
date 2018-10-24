@@ -157,16 +157,31 @@ VehicleState MkzVsm::getVehicleState() {
     vehicle_state.angular_velocity = angular_velocity;
 
     // Wheel states
-    fl_ws.angular_velocity = output_array[39] * 0.5;  // Angular Velocity of the Front Left Wheel
+    // at low velocity, estimate the wheel speeds
+    if (velocity.x > 10.0) {
+        fl_ws.angular_velocity = output_array[39];  // Angular Velocity of the Front Left Wheel
+        fr_ws.angular_velocity = output_array[46];  // Angular Velocity of the Front Right Wheel
+        rl_ws.angular_velocity = output_array[59];  // Angular Velocity of the Rear Left Wheel
+        rr_ws.angular_velocity = output_array[66];  // Angular Velocity of the Rear Right Wheel
+    }
+    else {
+        const double avg_wheel_speed = velocity.x / this->wheel_radius
+        const double linear_speed_difference = angular_velocity.z * this->wheelbase / 2
+        const double left_wheel_speed = (car_state.speed - linear_speed_difference) / this->wheel_radius
+        const double right_wheel_speed = (car_state.speed + linear_speed_difference) / this->wheel_radius
+
+        fl_ws.angular_velocity = avg_wheel_speed;
+        fr_ws.angular_velocity = avg_wheel_speed;
+        rl_ws.angular_velocity = left_wheel_speed;
+        rr_ws.angular_velocity = right_wheel_speed;
+    }
+
     vehicle_state.fl_wheel_state = fl_ws;
-    fr_ws.angular_velocity = output_array[46] * 0.5;  // Angular Velocity of the Front Right Wheel
     vehicle_state.fr_wheel_state = fr_ws;
-    rl_ws.angular_velocity = output_array[59] * 0.5;  // Angular Velocity of the Rear Left Wheel
     vehicle_state.rl_wheel_state = rl_ws;
-    rr_ws.angular_velocity = output_array[66] * 0.5;  // Angular Velocity of the Rear Right Wheel
     vehicle_state.rr_wheel_state = rr_ws;
 
     vehicle_state.time = this->time;
 
-    return (vehicle_state);
+    return vehicle_state;
 }
