@@ -17,8 +17,7 @@
 #include "common/common_utils/UniqueValueMap.hpp"
 #include "PawnEvents.h"
 #include "PIPCamera.h"
-#include "mkz_vsm.h"
-#include <unreal_ros_node_wrapper/unreal_ros_node_wrapper.hpp>
+#include <dbw_mkz_moose/dbw_mkz_moose.hpp>
 
 #include "CustomCarPawn.generated.h"
 
@@ -64,8 +63,8 @@ public:
         return keyboard_controls_;
     }
 
-    void setVehicleModelInput(VehicleInput vehicle_input);
-    VehicleState getVehicleState();
+    void setVehicleModelInput(dbw_mkz_moose::VehicleInput vehicle_input);
+    dbw_mkz_moose::VehicleState getVehicleState();
 
 private:
     void updateHUDStrings();
@@ -80,7 +79,7 @@ private:
     void onFootBrake(float Val);
     void onReversePressed();
     void onReverseReleased();
-    VehiclePose updateVehicleModel();
+    VehiclePose getNewVehiclePose();
 
 private:
     typedef msr::airlib::AirSimSettings AirSimSettings;
@@ -128,8 +127,8 @@ private:
     FText last_gear_;
     FColor	last_gear_display_color_;
     FColor	last_gear_display_reverse_color_;
-    MkzVsm vehicle_model_;
-    VehicleState vehicle_state_;
 
-    TUniquePtr<unreal_ros_node_wrapper::UnrealRosNodeWrapper> ros_node_wrapper;
+    dbw_mkz_moose::VehicleState vehicle_state_;
+
+    TUniquePtr<dbw_mkz_moose::DbwMkzMoose> dbw_mkz_moose;
 };

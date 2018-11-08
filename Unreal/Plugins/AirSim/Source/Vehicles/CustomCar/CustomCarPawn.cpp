@@ -80,22 +80,22 @@ ACustomCarPawn::ACustomCarPawn()
 
 void ACustomCarPawn::setupVehicleMovementComponent()
 {
-    vehicle_model_.init();
+
 }
 
-void ACustomCarPawn::setVehicleModelInput(VehicleInput vehicle_input)
+void ACustomCarPawn::setVehicleModelInput(dbw_mkz_moose::VehicleInput vehicle_input)
 {
     // vehicle_input.throttle_percent = 0;
     // vehicle_input.brake_position = 0.5;
     // vehicle_input.steering_angle = 0;
 
-    vehicle_model_.setVehicleInput(vehicle_input);
+    // vehicle_model_.setVehicleInput(vehicle_input);
     float steering = FMath::Clamp((float)vehicle_input.steering_angle, -8.48f, 8.48f);
     tire_angle_ = (steering/14.8f)*RAD2DEG*-1;
-    UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
+    // UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
 }
 
-VehicleState ACustomCarPawn::getVehicleState()
+dbw_mkz_moose::VehicleState ACustomCarPawn::getVehicleState()
 {
     return vehicle_state_;
 }
@@ -147,13 +147,13 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
 
     setupInputBindings();
 
-    this->ros_node_wrapper.Reset(
-        unreal_ros_node_wrapper::UnrealRosNodeWrapper::create());
+    this->dbw_mkz_moose.Reset(
+        dbw_mkz_moose::DbwMkzMoose::create());
 
-    if (this->ros_node_wrapper->start()) {
-      UE_LOG(LogTemp, Display, TEXT("unreal_ros_node_wrapper initialized"));
+    if (this->dbw_mkz_moose->start()) {
+      UE_LOG(LogTemp, Display, TEXT("dbw_mkz_moose started"));
     } else {
-      UE_LOG(LogTemp, Warning, TEXT("unreal_ros_node_wrapper not initialized"));
+      UE_LOG(LogTemp, Warning, TEXT("dbw_mkz_moose not started"));
     }
 }
 
@@ -192,36 +192,16 @@ void ACustomCarPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
     camera_back_center_base_ = nullptr;
 }
 
-VehiclePose ACustomCarPawn::updateVehicleModel()
+VehiclePose ACustomCarPawn::getNewVehiclePose()
 {
     // store the initial location and rotation of the car when the scenario starts
     static FVector location = this->GetActorLocation();
     static FRotator rotation = this->GetActorRotation();
 
-    vehicle_model_.performSimulationStep();
-    vehicle_state_ = vehicle_model_.getVehicleState();
-
-    const double position[3] = {vehicle_state_.position.x,
-                                vehicle_state_.position.y,
-                                vehicle_state_.position.z};
-    const double rotation_matrix[9] = {vehicle_state_.rotation.r1c1,
-                                vehicle_state_.rotation.r2c1,
-                                vehicle_state_.rotation.r3c1,
-                                vehicle_state_.rotation.r1c2,
-                                vehicle_state_.rotation.r2c2,
-                                vehicle_state_.rotation.r3c2,
-                                vehicle_state_.rotation.r1c3,
-                                vehicle_state_.rotation.r2c3,
-                                vehicle_state_.rotation.r3c3};
-
-    this->ros_node_wrapper->broadcast_T_sim_ENU_sim_body(position, rotation_matrix);
-    this->ros_node_wrapper->publish_wheel_speeds(vehicle_state_.fl_wheel_state.angular_velocity,
-                                                 vehicle_state_.fr_wheel_state.angular_velocity,
-                                                 vehicle_state_.rl_wheel_state.angular_velocity,
-                                                 vehicle_state_.rr_wheel_state.angular_velocity);
+    vehicle_state_ = this->dbw_mkz_moose->getVehicleState();
 
     FVector new_location = FVector(vehicle_state_.position.x * 100, // convert output from m to cm
-                                   vehicle_state_.position.y * 100, // convert output from m to cm
+                                   vehicle_state_.position.y * -100, // convert output from m to cm
                                    location.Z);
 
     FRotator new_rotation = FRotator(vehicle_state_.orientation.y * RAD2DEG, //convert radian to degree
@@ -246,7 +226,7 @@ void ACustomCarPawn::Tick(float Delta)
     updateInCarHUD();
 
     // Update the vehicle model state
-    VehiclePose newPose = updateVehicleModel();
+    VehiclePose newPose = getNewVehiclePose();
 
     // Set the location and rotation of the carpawn in simulation
     this->SetActorLocationAndRotation(newPose.location, newPose.rotation);
