@@ -91,10 +91,10 @@ public class AirSim : ModuleRules
         SetupCompileMode(CompileMode.CppCompileWithRpc, Target);
 
         PublicSystemIncludePaths.Add(
-           "../../../../src/ros_unreal/unreal_ros_node_wrapper/include/"
+           "../../../../src/dbw_mkz_moose/include/"
         );
         PublicAdditionalLibraries.AddRange(
-            new string[]{ "../../../../devel/lib/libunreal_ros_node_wrapper.so" });
+            new string[]{ "../../../../devel/lib/libdbw_mkz_moose.so" });
     }
 
     private void AddOSLibDependencies(ReadOnlyTargetRules Target)
