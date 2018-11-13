@@ -24,8 +24,6 @@ ACustomCarPawn::ACustomCarPawn()
     // TODO: Change this to some other pawn later
     const auto& car_mesh_paths = AirSimSettings::singleton().pawn_paths["DefaultComputerVision"];
 
-    setupVehicleMovementComponent();
-
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
     camera_front_center_base_ = CreateDefaultSubobject<USceneComponent>(TEXT("camera_front_center_base_"));
@@ -78,23 +76,6 @@ ACustomCarPawn::ACustomCarPawn()
     is_low_friction_ = false;
 }
 
-void ACustomCarPawn::setupVehicleMovementComponent()
-{
-
-}
-
-void ACustomCarPawn::setVehicleModelInput(dbw_mkz_moose::VehicleInput vehicle_input)
-{
-    // vehicle_input.throttle_percent = 0;
-    // vehicle_input.brake_position = 0.5;
-    // vehicle_input.steering_angle = 0;
-
-    // vehicle_model_.setVehicleInput(vehicle_input);
-    float steering = FMath::Clamp((float)vehicle_input.steering_angle, -8.48f, 8.48f);
-    tire_angle_ = (steering/14.8f)*RAD2DEG*-1;
-    // UE_LOG(LogTemp, Warning, TEXT("Tire Angle: %f"), tire_angle_);
-}
-
 dbw_mkz_moose::VehicleState ACustomCarPawn::getVehicleState()
 {
     return vehicle_state_;
@@ -144,8 +125,6 @@ void ACustomCarPawn::initializeForBeginPlay(bool engine_sound)
     wheel_fr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_frMesh"));
     wheel_rl_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rlMesh"));
     wheel_rr_ = UAirBlueprintLib::GetActorComponent<UStaticMeshComponent>(this, TEXT("wheel_rrMesh"));
-
-    setupInputBindings();
 
     this->dbw_mkz_moose.Reset(
         dbw_mkz_moose::DbwMkzMoose::create());
@@ -198,15 +177,17 @@ VehiclePose ACustomCarPawn::getNewVehiclePose()
     static FVector location = this->GetActorLocation();
     static FRotator rotation = this->GetActorRotation();
 
-    vehicle_state_ = this->dbw_mkz_moose->getVehicleState();
+    this->vehicle_state_ = this->dbw_mkz_moose->getVehicleState();
+    this->tire_angle_ = (this->vehicle_state_.steering_angle/14.8f)*RAD2DEG*-1;
 
-    FVector new_location = FVector(vehicle_state_.position.x * 100, // convert output from m to cm
-                                   vehicle_state_.position.y * -100, // convert output from m to cm
+    // convert from ENU (vehicle model) to ESU (unreal)
+    FVector new_location = FVector(this->vehicle_state_.position.x * 100, // convert output from m to cm
+                                   this->vehicle_state_.position.y * -100, // convert output from m to cm
                                    location.Z);
 
-    FRotator new_rotation = FRotator(vehicle_state_.orientation.y * RAD2DEG, //convert radian to degree
-                                    -vehicle_state_.orientation.z * RAD2DEG, //convert radian to degree
-                                     vehicle_state_.orientation.x * RAD2DEG);//convert radian to degree
+    FRotator new_rotation = FRotator(this->vehicle_state_.orientation.y * RAD2DEG, //convert radian to degree
+                                    -this->vehicle_state_.orientation.z * RAD2DEG, //convert radian to degree
+                                     this->vehicle_state_.orientation.x * RAD2DEG);//convert radian to degree
 
     VehiclePose newPose;
     newPose.location = location + rotation.RotateVector(new_location);
@@ -218,12 +199,6 @@ VehiclePose ACustomCarPawn::getNewVehiclePose()
 void ACustomCarPawn::Tick(float Delta)
 {
     Super::Tick(Delta);
-
-    // Update the strings used in the HUD (in-car and on-screen)
-    updateHUDStrings();
-
-    // Set the string in the in-car HUD
-    updateInCarHUD();
 
     // Update the vehicle model state
     VehiclePose newPose = getNewVehiclePose();
@@ -251,137 +226,6 @@ void ACustomCarPawn::Tick(float Delta)
         rotating_movement_rl_->SetUpdatedComponent(wheel_rl_);
         rotating_movement_rr_->SetUpdatedComponent(wheel_rr_);
         even = true;
-    }
-}
-
-void ACustomCarPawn::updateHUDStrings()
-{
-    // TODO re-enable these logs to use vehicle model info
-
-	float speed_unit_factor = AirSimSettings::singleton().speed_unit_factor;
-	FText speed_unit_label = FText::FromString(FString(AirSimSettings::singleton().speed_unit_label.c_str()));
-    // float vel = FMath::Abs(GetVehicleMovement()->GetForwardSpeed() / 100); //cm/s -> m/s
-    // float vel_rounded = FMath::FloorToInt(vel * 10 * speed_unit_factor) / 10.0f;
-    // int32 Gear = GetVehicleMovement()->GetCurrentGear();
-
-    // Using FText because this is display text that should be localizable
-    // last_speed_ = FText::Format(LOCTEXT("SpeedFormat", "{0} {1}"), FText::AsNumber(vel_rounded), speed_unit_label);
-
-    // if (GetVehicleMovement()->GetCurrentGear() < 0)
-    // {
-    //    last_gear_ = FText(LOCTEXT("ReverseGear", "R"));
-    // }
-    // else
-    // {
-    //    last_gear_ = (Gear == 0) ? LOCTEXT("N", "N") : FText::AsNumber(Gear);
-    // }
-
-
-     //UAirBlueprintLib::LogMessage(TEXT("Speed: "), last_speed_.ToString(), LogDebugLevel::Informational);
-     //UAirBlueprintLib::LogMessage(TEXT("Gear: "), last_gear_.ToString(), LogDebugLevel::Informational);
-    // UAirBlueprintLib::LogMessage(TEXT("RPM: "), FText::AsNumber(GetVehicleMovement()->GetEngineRotationSpeed()).ToString(), LogDebugLevel::Informational);
-}
-
-void ACustomCarPawn::updateInCarHUD()
-{
-    // TODO: Update
-    APlayerController* PlayerController = Cast<APlayerController>(GetController());
-    // if ((PlayerController != nullptr) && (speed_text_render_ != nullptr) && (gear_text_render_ != nullptr))
-    // {
-    //     // Setup the text render component strings
-    //     speed_text_render_->SetText(last_speed_);
-    //     gear_text_render_->SetText(last_gear_);
-    //
-    //     if (GetVehicleMovement()->GetCurrentGear() >= 0)
-    //     {
-    //         gear_text_render_->SetTextRenderColor(last_gear_display_color_);
-    //     }
-    //     else
-    //     {
-    //         gear_text_render_->SetTextRenderColor(last_gear_display_reverse_color_);
-    //     }
-    // }
-}
-
-/******************* Keyboard bindings*******************/
-//This method must be in pawn because Unreal doesn't allow key bindings to non UObject pointers
-void ACustomCarPawn::setupInputBindings()
-{
-    UAirBlueprintLib::EnableInput(this);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveForward", EKeys::Up, 1), this,
-        this, &ACustomCarPawn::onMoveForward);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveForward", EKeys::Down, -1), this,
-        this, &ACustomCarPawn::onMoveForward);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Right, 0.5), this,
-        this, &ACustomCarPawn::onMoveRight);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Left, -0.5), this,
-        this, &ACustomCarPawn::onMoveRight);
-
-    UAirBlueprintLib::BindActionToKey("Handbrake", EKeys::End, this, &ACustomCarPawn::onHandbrakePressed, true);
-    UAirBlueprintLib::BindActionToKey("Handbrake", EKeys::End, this, &ACustomCarPawn::onHandbrakeReleased, false);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("Footbrake", EKeys::SpaceBar, 1), this,
-        this, &ACustomCarPawn::onFootBrake);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveRight", EKeys::Gamepad_LeftX, 1), this,
-        this, &ACustomCarPawn::onMoveRight);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("MoveForward", EKeys::Gamepad_RightTriggerAxis, 1), this,
-        this, &ACustomCarPawn::onMoveForward);
-
-    UAirBlueprintLib::BindAxisToKey(FInputAxisKeyMapping("Footbrake", EKeys::Gamepad_LeftTriggerAxis, 1), this,
-        this, &ACustomCarPawn::onFootBrake);
-}
-
-void ACustomCarPawn::onMoveForward(float Val)
-{
-    if (Val < 0)
-        onReversePressed();
-    else
-        onReverseReleased();
-
-    keyboard_controls_.throttle = Val;
-}
-
-void ACustomCarPawn::onMoveRight(float Val)
-{
-    keyboard_controls_.steering = Val;
-}
-
-void ACustomCarPawn::onHandbrakePressed()
-{
-    keyboard_controls_.handbrake = true;
-}
-
-void ACustomCarPawn::onHandbrakeReleased()
-{
-    keyboard_controls_.handbrake = false;
-}
-
-void ACustomCarPawn::onFootBrake(float Val)
-{
-    keyboard_controls_.brake = Val;
-}
-
-void ACustomCarPawn::onReversePressed()
-{
-    if (keyboard_controls_.manual_gear >= 0) {
-        keyboard_controls_.is_manual_gear = true;
-        keyboard_controls_.manual_gear = -1;
-        keyboard_controls_.gear_immediate = true;
-    }
-}
-
-void ACustomCarPawn::onReverseReleased()
-{
-    if (keyboard_controls_.manual_gear < 0) {
-        keyboard_controls_.is_manual_gear = false;
-        keyboard_controls_.manual_gear = 0;
-        keyboard_controls_.gear_immediate = true;
     }
 }
 

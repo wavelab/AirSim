@@ -63,22 +63,9 @@ public:
         return keyboard_controls_;
     }
 
-    void setVehicleModelInput(dbw_mkz_moose::VehicleInput vehicle_input);
     dbw_mkz_moose::VehicleState getVehicleState();
 
 private:
-    void updateHUDStrings();
-    void setupVehicleMovementComponent();
-    void updateInCarHUD();
-
-    void setupInputBindings();
-    void onMoveForward(float Val);
-    void onMoveRight(float Val);
-    void onHandbrakePressed();
-    void onHandbrakeReleased();
-    void onFootBrake(float Val);
-    void onReversePressed();
-    void onReverseReleased();
     VehiclePose getNewVehiclePose();
 
 private:
