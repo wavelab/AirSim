@@ -19,15 +19,6 @@ bool CustomCarPawnApi::armDisarm(bool arm)
 void CustomCarPawnApi::setCarControls(const CarApiBase::CarControls& controls)
 {
     last_controls_ = controls;
-    VehicleInput vehicle_input;
-
-    vehicle_input.throttle_percent = controls.throttle;
-    vehicle_input.steering_angle = controls.steering * (-8.2);
-    vehicle_input.brake_position = controls.brake / 2;
-
-    UE_LOG(LogTemp, Warning, TEXT("Vehicle Brake: %f"), controls.brake);
-
-    pawn_->setVehicleModelInput(vehicle_input);
 }
 
 const msr::airlib::CarApiBase::CarControls& CustomCarPawnApi::getCarControls() const
@@ -37,7 +28,7 @@ const msr::airlib::CarApiBase::CarControls& CustomCarPawnApi::getCarControls() c
 
 msr::airlib::CarApiBase::CarState CustomCarPawnApi::getCarState() const
 {
-    VehicleState vehicle_state = pawn_->getVehicleState();
+    dbw_mkz_moose::VehicleState vehicle_state = pawn_->getVehicleState();
 
     CarApiBase::CarState state(
         vehicle_state.velocity.x, // m/s

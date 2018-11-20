@@ -89,6 +89,12 @@ public class AirSim : ModuleRules
         AddOSLibDependencies(Target);
 
         SetupCompileMode(CompileMode.CppCompileWithRpc, Target);
+
+        PublicSystemIncludePaths.Add(
+           "../../../../src/dbw_mkz_moose/include/"
+        );
+        PublicAdditionalLibraries.AddRange(
+            new string[]{ "../../../../devel/lib/libdbw_mkz_moose.so" });
     }
 
     private void AddOSLibDependencies(ReadOnlyTargetRules Target)
