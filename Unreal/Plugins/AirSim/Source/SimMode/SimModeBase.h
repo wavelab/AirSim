@@ -145,4 +145,7 @@ private:
     void setupPhysicsLoopPeriod();
     void showClockStats();
     void drawLidarDebugPoints();
+    UClass* LoadClass(const std::string& name);
+    const common_utils::UniqueValueMap<std::string, APIPCamera*> GetVehiclePawnCameras(
+    APawn* pawn) const;
 };

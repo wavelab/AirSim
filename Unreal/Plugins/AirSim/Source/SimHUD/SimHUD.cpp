@@ -21,7 +21,7 @@ ASimHUD::ASimHUD()
 void ASimHUD::BeginPlay()
 {
     Super::BeginPlay();
-
+/*
     try {
         UAirBlueprintLib::OnBeginPlay();
         initializeSettings();
@@ -38,12 +38,15 @@ void ASimHUD::BeginPlay()
         //FGenericPlatformMisc::MessageBoxExt(EAppMsgType::Ok, TEXT("Error at Startup"), ANSI_TO_TCHAR(ex.what()));
         UAirBlueprintLib::ShowMessage(EAppMsgType::Ok, std::string("Error at startup: ") + ex.what(), "Error");
     }
+*/
+    setUnrealEngineSettings();
+    createSimMode();
 }
 
 void ASimHUD::Tick(float DeltaSeconds)
 {
-    if (simmode_ && simmode_->EnableReport)
-        widget_->updateDebugReport(simmode_->getDebugReport());
+    // if (simmode_ && simmode_->EnableReport)
+    //     widget_->updateDebugReport(simmode_->getDebugReport());
 }
 
 void ASimHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -285,10 +288,13 @@ std::string ASimHUD::getSimModeFromUser()
 
 void ASimHUD::createSimMode()
 {
-    std::string simmode_name = AirSimSettings::singleton().simmode_name;
-
     FActorSpawnParameters simmode_spawn_params;
     simmode_spawn_params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    simmode_ = this->GetWorld()->SpawnActor<ASimModeCustomCar>(FVector::ZeroVector,
+        FRotator::ZeroRotator, simmode_spawn_params);
+/*
+    std::string simmode_name = AirSimSettings::singleton().simmode_name;
 
     //spawn at origin. We will use this to do global NED transforms, for ex, non-vehicle objects in environment
     if (simmode_name == "Multirotor")
@@ -307,6 +313,7 @@ void ASimHUD::createSimMode()
         UAirBlueprintLib::ShowMessage(EAppMsgType::Ok, std::string("SimMode is not valid: ") + simmode_name, "Error");
         UAirBlueprintLib::LogMessageString("SimMode is not valid: ", simmode_name, LogDebugLevel::Failure);
     }
+*/
 }
 
 void ASimHUD::initializeSubWindows()

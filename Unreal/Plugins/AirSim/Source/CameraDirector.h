@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "PawnSimApi.h"
-#include "PIPCamera.h"
+//#include "PIPCamera.h"
 #include "GameFramework/Actor.h"
 #include "ManualPoseController.h"
 #include "common/common_utils/Utils.hpp"
@@ -34,7 +34,7 @@ public:
      USpringArmComponent* SpringArm;
     
     UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    APIPCamera* ExternalCamera;
+    ACameraActor* ExternalCamera;
 
 public:
     void inputEventFpvView();
@@ -58,26 +58,39 @@ public:
         void setMode(ECameraDirectorMode mode);
 
     void initializeForBeginPlay(ECameraDirectorMode view_mode,
-        AActor* follow_actor, APIPCamera* fpv_camera, APIPCamera* front_camera, APIPCamera* back_camera);
+        AActor* follow_actor, ACameraActor* fpv_camera, ACameraActor* front_camera, ACameraActor* back_camera);
 
-    APIPCamera* getFpvCamera() const;
-    APIPCamera* getExternalCamera() const;
-    APIPCamera* getBackupCamera() const;
+    ACameraActor* getFpvCamera() const;
+    ACameraActor* getExternalCamera() const;
+    ACameraActor* getBackupCamera() const;
     void setFollowDistance(const int follow_distance) { this->follow_distance_ = follow_distance; }
     void setCameraRotationLagEnabled(const bool lag_enabled) { this->camera_rotation_lag_enabled_ = lag_enabled; }
 
 private:
     void setupInputBindings();
     void attachSpringArm(bool attach);
+    void showToScreen(ACameraActor* camera);
     void disableCameras(bool fpv, bool backup, bool external, bool front);
+    template<class UserClass>
+    FInputActionBinding& BindActionToKey(const FName action_name, const FKey in_key, UserClass* actor,
+        typename FInputActionHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr func, bool on_press_or_release = false,
+        bool shift_key = false, bool control_key = false, bool alt_key = false, bool command_key = false)
+    {
+        FInputActionKeyMapping action(action_name, in_key, shift_key, control_key, alt_key, command_key);
+
+        APlayerController* controller = actor->GetWorld()->GetFirstPlayerController();
+
+        controller->PlayerInput->AddActionMapping(action);
+        return controller->InputComponent->
+            BindAction(action_name, on_press_or_release ? IE_Pressed : IE_Released, actor, func);
+    }
 
 private:
     typedef common_utils::Utils Utils;
 
-
-    APIPCamera* fpv_camera_;
-    APIPCamera* backup_camera_;
-	APIPCamera* front_camera_;
+    ACameraActor* fpv_camera_;
+    ACameraActor* backup_camera_;
+	ACameraActor* front_camera_;
     AActor* follow_actor_;
 
     USceneComponent* last_parent_ = nullptr;

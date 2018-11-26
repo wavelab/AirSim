@@ -22,7 +22,7 @@ ACustomCarPawn::ACustomCarPawn()
     pip_camera_class_ = pip_camera_class.Succeeded() ? pip_camera_class.Class : nullptr;
 
     // TODO: Change this to some other pawn later
-    const auto& car_mesh_paths = AirSimSettings::singleton().pawn_paths["DefaultComputerVision"];
+    //const auto& car_mesh_paths = AirSimSettings::singleton().pawn_paths["DefaultComputerVision"];
 
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
@@ -70,10 +70,10 @@ ACustomCarPawn::ACustomCarPawn()
     // engine_sound_audio_->SetupAttachment(GetMesh());
 
     // Colors for the in-car gear display. One for normal one for reverse
-    last_gear_display_reverse_color_ = FColor(255, 0, 0, 255);
-    last_gear_display_color_ = FColor(255, 255, 255, 255);
+    //last_gear_display_reverse_color_ = FColor(255, 0, 0, 255);
+    //last_gear_display_color_ = FColor(255, 255, 255, 255);
 
-    is_low_friction_ = false;
+    //is_low_friction_ = false;
 }
 
 dbw_mkz_moose::VehicleState ACustomCarPawn::getVehicleState()

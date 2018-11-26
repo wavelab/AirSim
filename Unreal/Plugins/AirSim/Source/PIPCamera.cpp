@@ -13,7 +13,7 @@
 
 
 APIPCamera::APIPCamera()
-{
+{/*
     static ConstructorHelpers::FObjectFinder<UMaterial> mat_finder(TEXT("Material'/AirSim/HUDAssets/CameraSensorNoise.CameraSensorNoise'"));
     if (mat_finder.Succeeded())
     {
@@ -22,7 +22,7 @@ APIPCamera::APIPCamera()
     else
         UAirBlueprintLib::LogMessageString("Cannot create noise material for the PIPCamera", 
             "", LogDebugLevel::Failure);
-
+*/
     PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -31,6 +31,7 @@ void APIPCamera::PostInitializeComponents()
     Super::PostInitializeComponents();
 
     camera_ = UAirBlueprintLib::GetActorComponent<UCameraComponent>(this, TEXT("CameraComponent"));
+/*
     captures_.Init(nullptr, imageTypeCount());
     render_targets_.Init(nullptr, imageTypeCount());
 
@@ -50,12 +51,13 @@ void APIPCamera::PostInitializeComponents()
         UAirBlueprintLib::GetActorComponent<USceneCaptureComponent2D>(this, TEXT("InfraredCaptureComponent"));
     captures_[Utils::toNumeric(ImageType::SurfaceNormals)] = 
         UAirBlueprintLib::GetActorComponent<USceneCaptureComponent2D>(this, TEXT("NormalsCaptureComponent"));
+*/
 }
 
 void APIPCamera::BeginPlay()
 {
     Super::BeginPlay();
-
+/*
     noise_materials_.AddZeroed(imageTypeCount() + 1);
 
     //by default all image types are disabled
@@ -70,11 +72,13 @@ void APIPCamera::BeginPlay()
 
     gimbal_stabilization_ = 0;
     gimbald_rotator_ = this->GetActorRotation();
+*/
     this->SetActorTickEnabled(false);
 }
 
 msr::airlib::ProjectionMatrix APIPCamera::getProjectionMatrix(const APIPCamera::ImageType image_type) const
 {
+/*
     //TODO: avoid the need to override const cast here
     const_cast<APIPCamera*>(this)->setCameraTypeEnabled(image_type, true);
     const USceneCaptureComponent2D* capture = const_cast<APIPCamera*>(this)->getCaptureComponent(image_type, false);
@@ -154,10 +158,11 @@ msr::airlib::ProjectionMatrix APIPCamera::getProjectionMatrix(const APIPCamera::
         mat.setTo(Utils::nan<float>());
         return mat;
     }
+*/
 }
 
 void APIPCamera::Tick(float DeltaTime)
-{
+{/*
     if (gimbal_stabilization_ > 0) {
         FRotator rotator = this->GetActorRotation();
         if (!std::isnan(gimbald_rotator_.Pitch))
@@ -171,11 +176,12 @@ void APIPCamera::Tick(float DeltaTime)
                 rotator.Yaw * (1 - gimbal_stabilization_);
 
         this->SetActorRotation(rotator);
-    }
+    }*/
 }
 
 void APIPCamera::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+/*
     if (noise_materials_.Num()) {
         for (unsigned int image_type = 0; image_type < imageTypeCount(); ++image_type) {
             if (noise_materials_[image_type + 1])
@@ -193,6 +199,7 @@ void APIPCamera::EndPlay(const EEndPlayReason::Type EndPlayReason)
         captures_[image_type] = nullptr;
         render_targets_[image_type] = nullptr;
     }
+*/
 }
 
 unsigned int APIPCamera::imageTypeCount()
@@ -206,7 +213,7 @@ void APIPCamera::showToScreen()
     camera_->Activate();
     APlayerController* controller = this->GetWorld()->GetFirstPlayerController();
     controller->SetViewTarget(this);
-    UAirBlueprintLib::LogMessage(TEXT("Camera: "), GetName(), LogDebugLevel::Informational);
+    //UAirBlueprintLib::LogMessage(TEXT("Camera: "), GetName(), LogDebugLevel::Informational);
 }
 
 void APIPCamera::disableAll()
@@ -227,16 +234,19 @@ void APIPCamera::setCameraTypeEnabled(ImageType type, bool enabled)
 
 void APIPCamera::setCameraOrientation(const FRotator& rotator)
 {
+/*
     if (gimbal_stabilization_ > 0) {
         gimbald_rotator_.Pitch = rotator.Pitch;
         gimbald_rotator_.Roll = rotator.Roll;
         gimbald_rotator_.Yaw = rotator.Yaw;
     }
     this->SetActorRelativeRotation(rotator);
+*/
 }
 
 void APIPCamera::setupCameraFromSettings(const APIPCamera::CameraSetting& camera_setting, const NedTransform& ned_transform)
 {
+/*
     //TODO: should we be ignoring position and orientation settings here?
 
     //TODO: can we eliminate storing NedTransform?
@@ -269,11 +279,13 @@ void APIPCamera::setupCameraFromSettings(const APIPCamera::CameraSetting& camera
             setNoiseMaterial(image_type, camera_, camera_->PostProcessSettings, noise_setting);
         }
     }
+*/
 }
 
 void APIPCamera::updateCaptureComponentSetting(USceneCaptureComponent2D* capture, UTextureRenderTarget2D* render_target, 
     const CaptureSetting& setting, const NedTransform& ned_transform)
 {
+/*
     render_target->InitAutoFormat(setting.width, setting.height); //256 X 144, X 480
     if (!std::isnan(setting.target_gamma))
         render_target->TargetGamma = setting.target_gamma;
@@ -286,10 +298,12 @@ void APIPCamera::updateCaptureComponentSetting(USceneCaptureComponent2D* capture
         capture->OrthoWidth = ned_transform.fromNed(setting.ortho_width);
 
     updateCameraPostProcessingSetting(capture->PostProcessSettings, setting);
+*/
 }
 
 void APIPCamera::updateCameraSetting(UCameraComponent* camera, const CaptureSetting& setting, const NedTransform& ned_transform)
 {
+/*
     //if (!std::isnan(setting.target_gamma))
     //    camera-> = setting.target_gamma;
 
@@ -301,15 +315,19 @@ void APIPCamera::updateCameraSetting(UCameraComponent* camera, const CaptureSett
         camera->SetOrthoWidth(ned_transform.fromNed(setting.ortho_width));
 
     updateCameraPostProcessingSetting(camera->PostProcessSettings, setting);
+*/
 }
+
 
 msr::airlib::Pose APIPCamera::getPose() const
 {
     return ned_transform_->toLocalNed(this->GetActorTransform());
 }
 
+
 void APIPCamera::updateCameraPostProcessingSetting(FPostProcessSettings& obj, const CaptureSetting& setting)
 {
+/*
     if (!std::isnan(setting.motion_blur_amount))
         obj.MotionBlurAmount = setting.motion_blur_amount;
     if (setting.auto_exposure_method >= 0)
@@ -329,11 +347,13 @@ void APIPCamera::updateCameraPostProcessingSetting(FPostProcessSettings& obj, co
     if (!std::isnan(setting.auto_exposure_histogram_log_min))
         obj.HistogramLogMin = setting.auto_exposure_histogram_log_min;    
     if (!std::isnan(setting.auto_exposure_histogram_log_max))
-        obj.HistogramLogMax = setting.auto_exposure_histogram_log_max;  
+        obj.HistogramLogMax = setting.auto_exposure_histogram_log_max;
+*/
 }
 
 void APIPCamera::setNoiseMaterial(int image_type, UObject* outer, FPostProcessSettings& obj, const NoiseSetting& settings)
 {
+/*
     if (!settings.Enabled)
         return;
 
@@ -356,10 +376,12 @@ void APIPCamera::setNoiseMaterial(int image_type, UObject* outer, FPostProcessSe
     noise_material_->SetScalarParameterValue("HorzDistortionContrib", settings.HorzDistortionContrib);
 
     obj.AddBlendable(noise_material_, 1.0f);
+*/
 }
 
 void APIPCamera::enableCaptureComponent(const APIPCamera::ImageType type, bool is_enabled)
 {
+/*
     USceneCaptureComponent2D* capture = getCaptureComponent(type, false);
     if (capture != nullptr) {
         if (is_enabled) {
@@ -378,31 +400,38 @@ void APIPCamera::enableCaptureComponent(const APIPCamera::ImageType type, bool i
         camera_type_enabled_[Utils::toNumeric(type)] = is_enabled;
     }
     //else nothing to enable
+*/
 }
 
 UTextureRenderTarget2D* APIPCamera::getRenderTarget(const APIPCamera::ImageType type, bool if_active)
 {
+/*
     unsigned int image_type = Utils::toNumeric(type);
 
     if (!if_active || camera_type_enabled_[image_type])
         return render_targets_[image_type];
     return nullptr;
+*/
 }
 
 USceneCaptureComponent2D* APIPCamera::getCaptureComponent(const APIPCamera::ImageType type, bool if_active)
 {
+/*
     unsigned int image_type = Utils::toNumeric(type);
 
     if (!if_active || camera_type_enabled_[image_type])
         return captures_[image_type];
     return nullptr;
+*/
 }
 
 void APIPCamera::disableAllPIP()
 {
+/*
     for (unsigned int image_type = 0; image_type < imageTypeCount(); ++image_type) {
         enableCaptureComponent(Utils::toEnum<ImageType>(image_type), false);
     }
+*/
 }
 
 

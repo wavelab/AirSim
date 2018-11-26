@@ -14,7 +14,7 @@ void ASimModeCustomCar::BeginPlay()
 {
     Super::BeginPlay();
 
-    initializePauseState();
+    //initializePauseState();
 }
 
 void ASimModeCustomCar::initializePauseState()
@@ -31,34 +31,40 @@ bool ASimModeCustomCar::isPaused() const
 
 void ASimModeCustomCar::pause(bool is_paused)
 {
+/*
     if (is_paused)
         current_clockspeed_ = 0;
     else
         current_clockspeed_ = getSettings().clock_speed;
 
     UAirBlueprintLib::setUnrealClockSpeed(this, current_clockspeed_);
+*/
 }
 
 void ASimModeCustomCar::continueForTime(double seconds)
 {
+/*
     pause_period_start_ = ClockFactory::get()->nowNanos();
     pause_period_ = seconds;
     pause(false);
+*/
 }
 
 void ASimModeCustomCar::setupClockSpeed()
 {
+/*
     current_clockspeed_ = getSettings().clock_speed;
 
     //setup clock in PhysX
     UAirBlueprintLib::setUnrealClockSpeed(this, current_clockspeed_);
     UAirBlueprintLib::LogMessageString("Clock Speed: ", std::to_string(current_clockspeed_), LogDebugLevel::Informational);
+*/
 }
 
 void ASimModeCustomCar::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
+/*
     if (pause_period_start_ > 0) {
         if (ClockFactory::get()->elapsedSince(pause_period_start_) >= pause_period_) {
             if (!isPaused())
@@ -67,6 +73,7 @@ void ASimModeCustomCar::Tick(float DeltaSeconds)
             pause_period_start_ = 0;
         }
     }
+*/
 }
 
 //-------------------------------- overrides -----------------------------------------------//
