@@ -56,10 +56,10 @@ void ASimModeBase::BeginPlay()
     //get player start
     //this must be done from within actor otherwise we don't get player start
     
-    APlayerController* player_controller = this->GetWorld()->GetFirstPlayerController();
-    FTransform player_start_transform = player_controller->GetViewTarget()->GetActorTransform();
-    global_ned_transform_.reset(new NedTransform(player_start_transform,
-        UAirBlueprintLib::GetWorldToMetersScale(this)));
+    //APlayerController* player_controller = this->GetWorld()->GetFirstPlayerController();
+    //FTransform player_start_transform = player_controller->GetViewTarget()->GetActorTransform();
+    //global_ned_transform_.reset(new NedTransform(player_start_transform,
+    //    UAirBlueprintLib::GetWorldToMetersScale(this)));
 
     //world_sim_api_.reset(new WorldSimApi(this));
     //api_provider_.reset(new msr::airlib::ApiProvider(world_sim_api_.get()));
@@ -430,16 +430,16 @@ FRotator ASimModeBase::toFRotator(const msr::airlib::AirSimSettings::Rotation& r
 void ASimModeBase::setupVehiclesAndCamera()
 {
     //get UU origin of global NED frame
-    const FTransform uu_origin = getGlobalNedTransform().getGlobalTransform();
+    //const FTransform uu_origin = getGlobalNedTransform().getGlobalTransform();
 
     //determine camera director camera default pose and spawn it
-    const auto& camera_director_setting = getSettings().camera_director;
+    //const auto& camera_director_setting = getSettings().camera_director;
 
-    FVector camera_director_position_uu (0,0,0);
-    FVector acamera_director_position_uu = uu_origin.GetLocation() + getGlobalNedTransform().fromLocalNed(camera_director_setting.position);
+    FVector camera_director_position_uu (-800,0,400);
+    // FVector camera_director_position_uu = uu_origin.GetLocation() + getGlobalNedTransform().fromLocalNed(camera_director_setting.position);
 
-    FTransform camera_transform(toFRotator(camera_director_setting.rotation, FRotator::ZeroRotator), acamera_director_position_uu);
-    //FTransform camera_transform(FRotator(0,0,0), camera_director_position_uu);
+    //FTransform camera_transform(toFRotator(camera_director_setting.rotation, FRotator::ZeroRotator), camera_director_position_uu);
+    FTransform camera_transform(FRotator(0,0,0), camera_director_position_uu);
 
     initializeCameraDirector(camera_transform, -8/*camera_director_setting.follow_distance*/);
 
