@@ -435,7 +435,7 @@ void ASimModeBase::setupVehiclesAndCamera()
     //determine camera director camera default pose and spawn it
     //const auto& camera_director_setting = getSettings().camera_director;
 
-    FVector camera_director_position_uu (-800,0,400);
+    FVector camera_director_position_uu (0,0,0);
     // FVector camera_director_position_uu = uu_origin.GetLocation() + getGlobalNedTransform().fromLocalNed(camera_director_setting.position);
 
     //FTransform camera_transform(toFRotator(camera_director_setting.rotation, FRotator::ZeroRotator), camera_director_position_uu);

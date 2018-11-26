@@ -304,7 +304,7 @@ void ACameraDirector::showToScreen (ACameraActor* camera) {
     camera->GetCameraComponent()->SetVisibility(true);
     camera->GetCameraComponent()->Activate();
     APlayerController* controller = this->GetWorld()->GetFirstPlayerController();
-    controller->SetViewTarget(this);
+    controller->SetViewTarget(camera);
 }
 
 void ACameraDirector::disableCameras(bool fpv, bool backup, bool external, bool front)
